@@ -647,6 +647,15 @@
                     </button>
                 </div>
             </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">📚 Datos de Ejemplo</h3>
+                <p class="text-gray-600 mb-4">Utiliza este botón para llenar tu aplicación con cuentas y transacciones de muestra para probar todas las funcionalidades.</p>
+                <button onclick="app.populateWithSampleData()" class="w-full bg-gray-800 text-white px-4 py-3 rounded-md hover:bg-gray-700 transition-colors">
+                    ➕ Cargar Datos de Ejemplo
+                </button>
+            </div>
+
         </div>
 
         <div id="investments" class="section hidden">
@@ -787,11 +796,183 @@
                 this.attachListeners();
             }
 
-            // ... (resto del código de la clase FinanceApp)
-        }
+            // ... (resto de métodos de la clase)
 
+            async loadAllData() {
+                try {
+                    console.log("Cargando datos...");
+                    
+                    const accountsRef = collection(this.db, "accounts");
+                    const transactionsRef = collection(this.db, "transactions");
+                    
+                    const [accountsSnapshot, transactionsSnapshot] = await Promise.all([
+                        getDocs(accountsRef),
+                        getDocs(transactionsRef)
+                    ]);
+                    
+                    this.accounts = accountsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    this.transactions = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    console.log("Datos cargados exitosamente.");
+
+                    // Actualizar UI
+                    this.renderAccounts();
+                    this.renderTransactions();
+                    this.renderDashboardSummary();
+                    
+                } catch (error) {
+                    console.error("Error al cargar los datos de Firebase:", error);
+                    alert("Hubo un error al cargar los datos. Revisa la consola.");
+                }
+            }
+            
+            async addAccount(event) {
+                event.preventDefault();
+                const account = {
+                    name: document.getElementById('accountName').value,
+                    type: document.getElementById('accountType').value,
+                    bank: document.getElementById('accountBank').value,
+                    balance: parseFloat(document.getElementById('accountBalance').value),
+                    accountNumber: document.getElementById('accountNumber').value,
+                    creditLimit: document.getElementById('accountType').value === 'credit' ? parseFloat(document.getElementById('creditLimit').value) : null,
+                    createdAt: new Date()
+                };
+                
+                try {
+                    const docRef = await addDoc(collection(this.db, "accounts"), account);
+                    console.log("Documento de cuenta escrito con ID: ", docRef.id);
+                    this.loadAllData();
+                    alert("Cuenta agregada exitosamente.");
+                } catch (e) {
+                    console.error("Error al agregar documento: ", e);
+                    alert("Hubo un error al agregar la cuenta. Revisa la consola.");
+                }
+            }
+            
+            async addTransaction(event) {
+                event.preventDefault();
+                const transaction = {
+                    accountId: document.getElementById('transaction-account').value,
+                    type: document.getElementById('transaction-type').value,
+                    amount: parseFloat(document.getElementById('transaction-amount').value),
+                    category: document.getElementById('transaction-category').value,
+                    date: document.getElementById('transaction-date').value,
+                    description: document.getElementById('transaction-description').value,
+                    createdAt: new Date()
+                };
+
+                try {
+                    await addDoc(collection(this.db, "transactions"), transaction);
+                    console.log("Documento de transacción escrito.");
+                    this.loadAllData();
+                    alert("Transacción registrada exitosamente.");
+                } catch (e) {
+                    console.error("Error al registrar transacción: ", e);
+                    alert("Hubo un error al registrar la transacción. Revisa la consola.");
+                }
+            }
+            
+            async addTransfer(event) {
+                // Implementación de la función addTransfer
+            }
+            
+            async addBudgetCategory(event) {
+                // Implementación de la función addBudgetCategory
+            }
+
+            // =========================================
+            // MÉTODOS DE RENDERIZADO
+            // =========================================
+            renderAccounts() {
+                // Implementación de la función renderAccounts
+            }
+
+            renderTransactions() {
+                // Implementación de la función renderTransactions
+            }
+            
+            renderDashboardSummary() {
+                try {
+                    let totalIncome = 0;
+                    let totalExpenses = 0;
+                    
+                    this.transactions.forEach(t => {
+                        if(t.type === 'income') {
+                            totalIncome += t.amount;
+                        } else if (t.type === 'expense') {
+                            totalExpenses += t.amount;
+                        }
+                    });
+
+                    // Verifica si los elementos existen antes de asignarles valor
+                    if(this.totalIncomeEl) {
+                        this.totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
+                    }
+                    if(this.totalExpensesEl) {
+                        this.totalExpensesEl.textContent = `$${totalExpenses.toFixed(2)}`;
+                    }
+                    // Calcula patrimonio neto (Saldo de cuentas + Ingresos - Gastos)
+                    const netWorth = this.accounts.reduce((sum, account) => sum + account.balance, 0) + totalIncome - totalExpenses;
+                    if(this.netWorthEl) {
+                        this.netWorthEl.textContent = `$${netWorth.toFixed(2)}`;
+                    }
+                    
+                    // Actualizar otros resúmenes del dashboard
+                    if(document.getElementById('total-accounts')) {
+                        document.getElementById('total-accounts').textContent = this.accounts.length;
+                    }
+                    if(document.getElementById('total-transactions')) {
+                        document.getElementById('total-transactions').textContent = this.transactions.length;
+                    }
+                    
+                    console.log("Resumen del dashboard actualizado.");
+
+                } catch (error) {
+                    console.error("Error en renderDashboardSummary:", error);
+                }
+            }
+
+            // =========================================
+            // FUNCIONES ADICIONALES
+            // =========================================
+            async populateWithSampleData() {
+                try {
+                    // Cuentas de ejemplo
+                    const sampleAccounts = [
+                        { name: "Cuenta de Ahorros", type: "savings", bank: "Banco Davivienda", balance: 500000.00, createdAt: new Date() },
+                        { name: "Tarjeta de Crédito", type: "credit", bank: "Banco de Bogotá", balance: -250000.00, creditLimit: 2000000.00, createdAt: new Date() },
+                        { name: "Cuenta de Nequi", type: "checking", bank: "Nequi", balance: 125000.00, createdAt: new Date() }
+                    ];
+
+                    // Transacciones de ejemplo
+                    const sampleTransactions = [
+                        { accountId: 'id-temporal-nequi', type: "income", amount: 50000, category: "Salario", date: "2025-09-01", description: "Pago de salario semanal", createdAt: new Date() },
+                        { accountId: 'id-temporal-ahorros', type: "expense", amount: 35000, category: "Alimentación", date: "2025-09-02", description: "Mercado en el supermercado", createdAt: new Date() },
+                        { accountId: 'id-temporal-credito', type: "expense", amount: 15000, category: "Entretenimiento", date: "2025-09-02", description: "Boletas de cine", createdAt: new Date() }
+                    ];
+
+                    // Añadir cuentas a la base de datos
+                    const accountRefs = await Promise.all(sampleAccounts.map(account => addDoc(collection(this.db, "accounts"), account)));
+                    
+                    // Reemplazar IDs temporales con los IDs reales generados por Firebase
+                    sampleTransactions[0].accountId = accountRefs[2].id; // Nequi
+                    sampleTransactions[1].accountId = accountRefs[0].id; // Ahorros
+                    sampleTransactions[2].accountId = accountRefs[1].id; // Crédito
+                    
+                    // Añadir transacciones a la base de datos
+                    await Promise.all(sampleTransactions.map(transaction => addDoc(collection(this.db, "transactions"), transaction)));
+                    
+                    alert("Datos de ejemplo cargados exitosamente.");
+                    this.loadAllData(); // Recargar datos para actualizar la UI
+                } catch (error) {
+                    console.error("Error al cargar datos de ejemplo:", error);
+                    alert("Hubo un error al cargar los datos de ejemplo. Revisa la consola.");
+                }
+            }
+        }
+        
         // =========================================
-        // FUNCIONES DE UI Y NAVEGACIÓN
+        // FUNCIONES GLOBALES DE NAVEGACIÓN
         // =========================================
         function showSection(sectionId) {
             const sections = document.querySelectorAll('.section');
@@ -806,10 +987,6 @@
             });
         }
         
-        // =========================================
-        // FUNCIONES GLOBALES ADICIONALES
-        // =========================================
-
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
             mobileMenu.classList.toggle('hidden');
@@ -821,5 +998,18 @@
             app = new FinanceApp();
         });
     </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js', { scope: './' })
+                .then(registration => {
+                    console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('Fallo en el registro del Service Worker:', error);
+                });
+        });
+    }
+</script>
 </body>
 </html>

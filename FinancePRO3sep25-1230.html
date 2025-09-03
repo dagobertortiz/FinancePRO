@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinancePro - Sistema de Finanzas Personales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+        input:checked + .slider {
+            background-color: #4f46e5;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .slider.round {
+            border-radius: 34px;
+        }
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 font-sans flex flex-col min-h-screen text-gray-900 dark:text-gray-100">
+
+    <!-- NAVEGACIÓN -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-indigo-600">FinancePro</span>
+                </div>
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-2 lg:space-x-4">
+                    <button onclick="showSection('dashboard')" class="nav-btn bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">Dashboard</button>
+                    <button onclick="showSection('accounts')" class="nav-btn bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Cuentas</button>
+                    <button onclick="showSection('transactions')" class="nav-btn bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">Transacciones</button>
+                    <button onclick="showSection('transfers')" class="nav-btn bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">Transferir</button>
+                    <button onclick="showSection('budgets')" class="nav-btn bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">Presupuestos</button>
+                    <button onclick="showSection('reports')" class="nav-btn bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors">Informes</button>
+                    <button onclick="showSection('settings')" class="nav-btn bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">⚙️</button>
+                    <button onclick="app.showHelpModal()" class="nav-btn bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors">Ayuda</button>
+                </div>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile Navigation -->
+            <div id="mobileMenu" class="md:hidden hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    <button onclick="showSection('dashboard'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700">Dashboard</button>
+                    <button onclick="showSection('accounts'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700">Cuentas</button>
+                    <button onclick="showSection('transactions'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700">Transacciones</button>
+                    <button onclick="showSection('transfers'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700">Transferir</button>
+                    <button onclick="showSection('budgets'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700">Presupuestos</button>
+                    <button onclick="showSection('reports'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700">Informes</button>
+                    <button onclick="showSection('settings'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700">Configuración</button>
+                    <button onclick="app.showHelpModal(); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700">Ayuda</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PANTALLA DE CARGA -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center flex-col">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
+        <p class="mt-4 text-gray-700 dark:text-gray-300">Cargando...</p>
+    </div>
+
+    <!-- MODALES -->
+    <div id="messageModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-xl font-bold"></h3>
+                <button onclick="hideMessageModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100">&times;</button>
+            </div>
+            <p id="modalMessage" class="text-gray-700 dark:text-gray-300"></p>
+            <div class="mt-6 text-right">
+                <button onclick="hideMessageModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 id="confirmTitle" class="text-xl font-bold mb-4"></h3>
+            <p id="confirmMessage" class="text-gray-700 dark:text-gray-300 mb-6"></p>
+            <div class="flex justify-end space-x-4">
+                <button id="confirmCancelBtn" class="bg-gray-300 text-gray-800 dark:bg-gray-700 dark:text-gray-200 px-4 py-2 rounded-md hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors">Cancelar</button>
+                <button id="confirmOkBtn" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="helpModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-2xl w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-indigo-600">Guía de Uso Rápida</h3>
+                <button onclick="app.hideHelpModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100">&times;</button>
+            </div>
+            <div class="prose dark:prose-invert max-w-none">
+                <p>Bienvenido a FinancePro. Aquí tienes una guía rápida para empezar a usar la aplicación:</p>
+                <ul>
+                    <li>**Dashboard:** La pantalla de inicio te ofrece un resumen de tu situación financiera, incluyendo tu patrimonio total, ingresos y gastos.</li>
+                    <li>**Cuentas:** Aquí puedes agregar, editar y eliminar tus cuentas bancarias, de ahorro o tarjetas de crédito. El saldo se actualiza automáticamente con cada transacción.</li>
+                    <li>**Transacciones:** En esta sección puedes registrar tus gastos e ingresos. Asegúrate de seleccionar la cuenta correcta, la categoría y el beneficiario para un seguimiento preciso.</li>
+                    <li>**Transferir:** Mueve dinero entre tus cuentas de forma segura. El saldo de ambas cuentas se ajustará automáticamente.</li>
+                    <li>**Presupuestos:** Establece límites de gasto mensuales para diferentes categorías y controla tu progreso.</li>
+                    <li>**Informes:** Visualiza el análisis de tus finanzas con informes detallados sobre tus gastos, ingresos y la rentabilidad de tus inversiones.</li>
+                    <li>**Configuración:** Personaliza la apariencia de la app con el modo oscuro y descarga una copia de seguridad de todos tus datos. También puedes gestionar tus categorías, beneficiarios e inversiones.</li>
+                </ul>
+                <p>¡Esperamos que disfrutes organizando tus finanzas!</p>
+            </div>
+            <div class="mt-6 text-right">
+                <button onclick="app.hideHelpModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto py-6 px-4 flex-grow hidden" id="main-content">
+        <!-- SECCIÓN DASHBOARD -->
+        <div id="dashboard" class="section">
+            <h1 class="text-3xl font-bold mb-2">Dashboard Financiero</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Resumen de tu situación financiera</p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg shadow-lg p-6 text-white">
+                    <div>
+                        <p class="text-emerald-100 text-sm font-medium">Patrimonio Total</p>
+                        <p id="total-net-worth" class="text-3xl font-bold">$0.00</p>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium">Total Cuentas</p>
+                        <p id="total-accounts" class="text-3xl font-bold">0</p>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium">Ingresos Totales</p>
+                        <p id="total-income" class="text-3xl font-bold">$0.00</p>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white">
+                    <div>
+                        <p class="text-orange-100 text-sm font-medium">Gastos Totales</p>
+                        <p id="total-expenses" class="text-3xl font-bold">$0.00</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Transacciones Recientes</h3>
+                <div id="dashboard-transactions" class="space-y-3">
+                    <p class="text-gray-500 dark:text-gray-400">No hay transacciones registradas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN CUENTAS -->
+        <div id="accounts" class="section hidden">
+            <h1 class="text-3xl font-bold mb-2">Gestión de Cuentas</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Administra todas tus cuentas bancarias y tarjetas</p>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Nueva Cuenta</h3>
+                <form id="accountForm" class="space-y-4">
+                    <input type="text" id="accountName" placeholder="Nombre de la Cuenta" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400" required>
+                    <select id="accountType" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                        <option value="">Seleccionar tipo</option>
+                        <option value="checking">Cuenta Corriente</option>
+                        <option value="savings">Cuenta de Ahorros</option>
+                        <option value="credit">Tarjeta de Crédito</option>
+                        <option value="investment">Inversión</option>
+                    </select>
+                    <input type="number" id="accountBalance" placeholder="Saldo Inicial" step="0.01" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400" required>
+                    <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">Agregar Cuenta</button>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Mis Cuentas</h3>
+                <div id="accounts-list" class="space-y-4">
+                    <p class="text-gray-500 dark:text-gray-400">No hay cuentas configuradas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN TRANSACCIONES -->
+        <div id="transactions" class="section hidden">
+            <h1 class="text-3xl font-bold mb-2">Gestión de Transacciones</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Registra y administra tus ingresos y gastos</p>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Nueva Transacción</h3>
+                <form id="transactionForm" class="space-y-4">
+                    <select id="transaction-account" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                        <option value="">Seleccionar cuenta</option>
+                    </select>
+                    <select id="transaction-type" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                        <option value="income">Ingreso</option>
+                        <option value="expense">Gasto</option>
+                    </select>
+                    <input type="number" id="transaction-amount" placeholder="Cantidad" step="0.01" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400" required>
+                    <select id="transaction-category" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                        <option value="">Seleccionar categoría</option>
+                    </select>
+                    <select id="transaction-beneficiary" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                        <option value="">Seleccionar beneficiario</option>
+                    </select>
+                    <input type="text" id="transaction-description" placeholder="Descripción" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400" required>
+                    <input type="date" id="transaction-date" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                    <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">Registrar Transacción</button>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Historial de Transacciones</h3>
+                <div id="transactions-list" class="space-y-4">
+                    <p class="text-gray-500 dark:text-gray-400">No hay transacciones registradas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN TRANSFERENCIAS -->
+        <div id="transfers" class="section hidden">
+            <h1 class="text-3xl font-bold mb-2">Transferencias</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Transfiere dinero entre tus cuentas</p>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <form id="transferForm" class="space-y-4">
+                    <label class="block">
+                        <span class="text-gray-700 dark:text-gray-300">De la cuenta:</span>
+                        <select id="transfer-from-account" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                            <option value="">Seleccionar cuenta de origen</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-gray-700 dark:text-gray-300">A la cuenta:</span>
+                        <select id="transfer-to-account" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                            <option value="">Seleccionar cuenta de destino</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-gray-700 dark:text-gray-300">Monto:</span>
+                        <input type="number" id="transfer-amount" placeholder="Monto a transferir" step="0.01" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400" required>
+                    </label>
+                    <button type="submit" class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">Realizar Transferencia</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- SECCIÓN PRESUPUESTOS -->
+        <div id="budgets" class="section hidden">
+            <h1 class="text-3xl font-bold mb-2">Presupuestos</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Establece límites de gasto para tus categorías</p>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Nuevo Presupuesto</h3>
+                <form id="budgetForm" class="space-y-4">
+                    <label class="block">
+                        <span class="text-gray-700 dark:text-gray-300">Categoría:</span>
+                        <select id="budget-category" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" required>
+                            <option value="">Seleccionar categoría</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-gray-700 dark:text-gray-300">Monto:</span>
+                        <input type="number" id="budget-amount" placeholder="Monto del presupuesto" step="0.01" class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400" required>
+                    </label>
+                    <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">Agregar Presupuesto</button>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Mis Presupuestos</h3>
+                <div id="budgets-list" class="space-y-4">
+                    <p class="text-gray-500 dark:text-gray-400">No hay presupuestos configurados.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN INFORMES -->
+        <div id="reports" class="section hidden">
+            <h1 class="text-3xl font-bold mb-2">Informes y Análisis</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Analiza tus movimientos financieros</p>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Resumen de Ingresos vs. Gastos</h3>
+                <div id="income-expense-report" class="space-y-4">
+                    <p class="text-gray-500 dark:text-gray-400">Datos no disponibles.</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Desglose de Gastos por Categoría</h3>
+                <div id="expense-by-category-report" class="space-y-4">
+                    <p class="text-gray-500 dark:text-gray-400">Datos no disponibles.</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Rendimiento de Inversiones</h3>
+                <div id="investments-report" class="space-y-4">
+                    <p class="text-gray-500 dark:text-gray-400">Datos no disponibles.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN CONFIGURACIÓN -->
+        <div id="settings" class="section hidden">
+            <h1 class="text-3xl font-bold mb-2">Configuración</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Gestiona tus datos y configuraciones</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tarjeta de Apariencia -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Apariencia</h3>
+                    <div class="flex items-center justify-between">
+                        <p class="text-gray-600 dark:text-gray-400">Modo Oscuro</p>
+                        <label class="switch">
+                            <input type="checkbox" id="darkModeToggle" onclick="app.toggleDarkMode()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <!-- Tarjeta de Datos -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Datos de la Aplicación</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Descarga tus datos como copia de seguridad o para analizarlos.</p>
+                    <button onclick="app.downloadData()" class="w-full bg-gray-800 dark:bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                        Descargar Datos
+                    </button>
+                    <p class="text-gray-600 dark:text-gray-400 mt-4 mb-4">Carga datos de prueba para ver la funcionalidad de la aplicación.</p>
+                    <button onclick="app.populateWithSampleData()" class="w-full bg-gray-800 dark:bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                        Cargar Datos de Ejemplo
+                    </button>
+                </div>
+                <!-- Tarjeta de Gestión de Categorías -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Gestión de Categorías</h3>
+                    <form id="categoryForm" class="flex space-x-2">
+                        <input type="text" id="categoryName" placeholder="Nueva categoría" class="flex-grow px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400" required>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Agregar</button>
+                    </form>
+                    <div id="categories-list" class="mt-4 space-y-2"></div>
+                </div>
+                <!-- Tarjeta de Gestión de Beneficiarios -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Gestión de Beneficiarios</h3>
+                    <form id="beneficiaryForm" class="flex space-x-2">
+                        <input type="text" id="beneficiaryName" placeholder="Nuevo beneficiario" class="flex-grow px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400" required>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Agregar</button>
+                    </form>
+                    <div id="beneficiaries-list" class="mt-4 space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-gray-800 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+            © 2024 FinancePro. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, query, onSnapshot, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =========================================
+        // CONFIGURACIÓN Y MÓDULOS DE FIREBASE
+        // =========================================
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_AUTH_DOMAIN",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_STORAGE_BUCKET",
+            messagingSenderId: "TU_MESSAGING_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getFirestore(firebaseApp);
+
+        // =========================================
+        // CLASE PRINCIPAL DE LA APLICACIÓN
+        // =========================================
+        class FinanceApp {
+            constructor() {
+                this.db = db;
+                this.accounts = [];
+                this.transactions = [];
+                this.categories = [];
+                this.beneficiaries = [];
+                this.budgets = [];
+                this.investments = [];
+
+                this.loadingScreen = document.getElementById('loadingScreen');
+                this.mainContent = document.getElementById('main-content');
+                this.accountForm = document.getElementById('accountForm');
+                this.transactionForm = document.getElementById('transactionForm');
+                this.transferForm = document.getElementById('transferForm');
+                this.budgetForm = document.getElementById('budgetForm');
+                this.categoryForm = document.getElementById('categoryForm');
+                this.beneficiaryForm = document.getElementById('beneficiaryForm');
+
+                this.accountListEl = document.getElementById('accounts-list');
+                this.transactionListEl = document.getElementById('transactions-list');
+                this.transactionAccountSelect = document.getElementById('transaction-account');
+                this.transactionCategorySelect = document.getElementById('transaction-category');
+                this.transactionBeneficiarySelect = document.getElementById('transaction-beneficiary');
+                this.transferFromAccountSelect = document.getElementById('transfer-from-account');
+                this.transferToAccountSelect = document.getElementById('transfer-to-account');
+                this.budgetCategorySelect = document.getElementById('budget-category');
+                this.budgetsListEl = document.getElementById('budgets-list');
+                this.categoriesListEl = document.getElementById('categories-list');
+                this.beneficiariesListEl = document.getElementById('beneficiaries-list');
+                
+                this.dashboardTransactionsEl = document.getElementById('dashboard-transactions');
+                this.totalNetWorthEl = document.getElementById('total-net-worth');
+                this.totalAccountsEl = document.getElementById('total-accounts');
+                this.totalIncomeEl = document.getElementById('total-income');
+                this.totalExpensesEl = document.getElementById('total-expenses');
+                this.incomeExpenseReportEl = document.getElementById('income-expense-report');
+                this.expenseByCategoryReportEl = document.getElementById('expense-by-category-report');
+                this.investmentsReportEl = document.getElementById('investments-report');
+                
+                this.attachListeners();
+                this.loadThemePreference();
+                this.loadAllData();
+            }
+
+            attachListeners() {
+                this.accountForm.addEventListener('submit', (e) => this.addAccount(e));
+                this.transactionForm.addEventListener('submit', (e) => this.addTransaction(e));
+                this.transferForm.addEventListener('submit', (e) => this.addTransfer(e));
+                this.budgetForm.addEventListener('submit', (e) => this.addBudget(e));
+                this.categoryForm.addEventListener('submit', (e) => this.addCategory(e));
+                this.beneficiaryForm.addEventListener('submit', (e) => this.addBeneficiary(e));
+            }
+
+            async loadAllData() {
+                this.showLoading(true);
+                try {
+                    const accountsSnapshot = await getDocs(collection(this.db, "accounts"));
+                    this.accounts = accountsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    const transactionsSnapshot = await getDocs(collection(this.db, "transactions"));
+                    this.transactions = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    const categoriesSnapshot = await getDocs(collection(this.db, "categories"));
+                    this.categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    const beneficiariesSnapshot = await getDocs(collection(this.db, "beneficiaries"));
+                    this.beneficiaries = beneficiariesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    const budgetsSnapshot = await getDocs(collection(this.db, "budgets"));
+                    this.budgets = budgetsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    // Las inversiones son un tipo de cuenta, así que las filtramos
+                    this.investments = this.accounts.filter(acc => acc.type === 'investment');
+                    
+                    this.renderUI();
+                } catch (error) {
+                    console.error("Error al cargar datos:", error);
+                    this.showMessageModal('Error', 'Hubo un error al cargar los datos. Revisa la consola.');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            renderUI() {
+                this.renderAccounts();
+                this.renderTransactions();
+                this.renderDashboard();
+                this.renderBudgets();
+                this.renderCategories();
+                this.renderBeneficiaries();
+                this.renderReports();
+                
+                this.populateAccountSelects();
+                this.populateCategorySelects();
+                this.populateBeneficiarySelects();
+            }
+
+            showLoading(show) {
+                this.loadingScreen.classList.toggle('hidden', !show);
+                this.mainContent.classList.toggle('hidden', show);
+            }
+
+            showMessageModal(title, message) {
+                document.getElementById('modalTitle').textContent = title;
+                document.getElementById('modalMessage').textContent = message;
+                document.getElementById('messageModal').classList.remove('hidden');
+            }
+
+            hideMessageModal() {
+                document.getElementById('messageModal').classList.add('hidden');
+            }
+
+            showConfirmModal(title, message, onConfirm) {
+                document.getElementById('confirmTitle').textContent = title;
+                document.getElementById('confirmMessage').textContent = message;
+                document.getElementById('confirmModal').classList.remove('hidden');
+
+                const confirmOkBtn = document.getElementById('confirmOkBtn');
+                const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+
+                const handleConfirm = () => {
+                    onConfirm();
+                    confirmOkBtn.removeEventListener('click', handleConfirm);
+                    confirmCancelBtn.removeEventListener('click', handleCancel);
+                    document.getElementById('confirmModal').classList.add('hidden');
+                };
+
+                const handleCancel = () => {
+                    confirmOkBtn.removeEventListener('click', handleConfirm);
+                    confirmCancelBtn.removeEventListener('click', handleCancel);
+                    document.getElementById('confirmModal').classList.add('hidden');
+                };
+
+                confirmOkBtn.addEventListener('click', handleConfirm);
+                confirmCancelBtn.addEventListener('click', handleCancel);
+            }
+
+            showHelpModal() {
+                document.getElementById('helpModal').classList.remove('hidden');
+            }
+
+            hideHelpModal() {
+                document.getElementById('helpModal').classList.add('hidden');
+            }
+
+            toggleDarkMode() {
+                const htmlEl = document.documentElement;
+                const isDark = htmlEl.classList.contains('dark');
+                if (isDark) {
+                    htmlEl.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    htmlEl.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            }
+
+            loadThemePreference() {
+                const savedTheme = localStorage.getItem('theme');
+                const darkModeToggle = document.getElementById('darkModeToggle');
+                if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                    darkModeToggle.checked = true;
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    darkModeToggle.checked = false;
+                }
+            }
+
+            // Descarga de datos
+            async downloadData() {
+                try {
+                    const allData = {
+                        accounts: this.accounts,
+                        transactions: this.transactions,
+                        categories: this.categories,
+                        beneficiaries: this.beneficiaries,
+                        budgets: this.budgets
+                    };
+                    const jsonString = JSON.stringify(allData, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'finanzas_personales_backup.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    this.showMessageModal('Éxito', 'Tus datos se han descargado correctamente.');
+                } catch (error) {
+                    console.error("Error al descargar datos:", error);
+                    this.showMessageModal('Error', 'Hubo un error al descargar los datos. Revisa la consola.');
+                }
+            }
+
+            // MÉTODOS CRUD
+            async addAccount(event) {
+                event.preventDefault();
+                const newAccount = {
+                    name: this.accountForm.querySelector('#accountName').value,
+                    type: this.accountForm.querySelector('#accountType').value,
+                    balance: parseFloat(this.accountForm.querySelector('#accountBalance').value)
+                };
+                await addDoc(collection(this.db, "accounts"), newAccount);
+                this.showMessageModal('Éxito', 'Cuenta agregada exitosamente.');
+                this.accountForm.reset();
+                this.loadAllData();
+            }
+
+            async addTransaction(event) {
+                event.preventDefault();
+                const newTransaction = {
+                    accountId: this.transactionForm.querySelector('#transaction-account').value,
+                    type: this.transactionForm.querySelector('#transaction-type').value,
+                    amount: parseFloat(this.transactionForm.querySelector('#transaction-amount').value),
+                    categoryId: this.transactionForm.querySelector('#transaction-category').value,
+                    beneficiaryId: this.transactionForm.querySelector('#transaction-beneficiary').value,
+                    description: this.transactionForm.querySelector('#transaction-description').value,
+                    date: this.transactionForm.querySelector('#transaction-date').value,
+                    createdAt: new Date().toISOString()
+                };
+                
+                const accountDocRef = doc(this.db, "accounts", newTransaction.accountId);
+                const accountData = this.accounts.find(a => a.id === newTransaction.accountId);
+                
+                if (accountData) {
+                    const updatedBalance = newTransaction.type === 'income'
+                        ? accountData.balance + newTransaction.amount
+                        : accountData.balance - newTransaction.amount;
+                    await updateDoc(accountDocRef, { balance: updatedBalance });
+                }
+
+                await addDoc(collection(this.db, "transactions"), newTransaction);
+                this.showMessageModal('Éxito', 'Transacción registrada exitosamente.');
+                this.transactionForm.reset();
+                this.loadAllData();
+            }
+
+            async addTransfer(event) {
+                event.preventDefault();
+                const fromAccountId = this.transferForm.querySelector('#transfer-from-account').value;
+                const toAccountId = this.transferForm.querySelector('#transfer-to-account').value;
+                const amount = parseFloat(this.transferForm.querySelector('#transfer-amount').value);
+
+                if (fromAccountId === toAccountId) {
+                    this.showMessageModal('Error', 'Las cuentas de origen y destino no pueden ser las mismas.');
+                    return;
+                }
+
+                const fromAccount = this.accounts.find(a => a.id === fromAccountId);
+                const toAccount = this.accounts.find(a => a.id === toAccountId);
+
+                if (!fromAccount || !toAccount) {
+                    this.showMessageModal('Error', 'Cuentas no encontradas.');
+                    return;
+                }
+
+                const batch = writeBatch(this.db);
+                const fromAccountRef = doc(this.db, "accounts", fromAccountId);
+                const toAccountRef = doc(this.db, "accounts", toAccountId);
+
+                batch.update(fromAccountRef, { balance: fromAccount.balance - amount });
+                batch.update(toAccountRef, { balance: toAccount.balance + amount });
+
+                try {
+                    await batch.commit();
+                    this.showMessageModal('Éxito', 'Transferencia realizada exitosamente.');
+                    this.transferForm.reset();
+                    this.loadAllData();
+                } catch (error) {
+                    console.error("Error al realizar la transferencia:", error);
+                    this.showMessageModal('Error', 'Hubo un error al procesar la transferencia.');
+                }
+            }
+
+            async addBudget(event) {
+                event.preventDefault();
+                const newBudget = {
+                    categoryId: this.budgetForm.querySelector('#budget-category').value,
+                    amount: parseFloat(this.budgetForm.querySelector('#budget-amount').value),
+                    period: 'monthly' // Presupuestos mensuales por ahora
+                };
+                await addDoc(collection(this.db, "budgets"), newBudget);
+                this.showMessageModal('Éxito', 'Presupuesto agregado exitosamente.');
+                this.budgetForm.reset();
+                this.loadAllData();
+            }
+
+            async addCategory(event) {
+                event.preventDefault();
+                const newCategory = {
+                    name: this.categoryForm.querySelector('#categoryName').value,
+                };
+                await addDoc(collection(this.db, "categories"), newCategory);
+                this.showMessageModal('Éxito', 'Categoría agregada exitosamente.');
+                this.categoryForm.reset();
+                this.loadAllData();
+            }
+
+            async addBeneficiary(event) {
+                event.preventDefault();
+                const newBeneficiary = {
+                    name: this.beneficiaryForm.querySelector('#beneficiaryName').value,
+                };
+                await addDoc(collection(this.db, "beneficiaries"), newBeneficiary);
+                this.showMessageModal('Éxito', 'Beneficiario agregado exitosamente.');
+                this.beneficiaryForm.reset();
+                this.loadAllData();
+            }
+            
+            async deleteAccount(accountId) {
+                this.showConfirmModal('Confirmar Eliminación', '¿Estás seguro de que quieres eliminar esta cuenta? Todas las transacciones asociadas a ella serán eliminadas.', async () => {
+                    const batch = writeBatch(this.db);
+                    const accountRef = doc(this.db, "accounts", accountId);
+                    batch.delete(accountRef);
+                    
+                    const q = query(collection(this.db, "transactions"));
+                    const querySnapshot = await getDocs(q);
+                    querySnapshot.forEach(doc => {
+                        if (doc.data().accountId === accountId) {
+                            batch.delete(doc.ref);
+                        }
+                    });
+                    
+                    await batch.commit();
+                    this.showMessageModal('Éxito', 'Cuenta y transacciones asociadas eliminadas.');
+                    this.loadAllData();
+                });
+            }
+
+            async deleteTransaction(transactionId) {
+                this.showConfirmModal('Confirmar Eliminación', '¿Estás seguro de que quieres eliminar esta transacción?', async () => {
+                     const transactionToDelete = this.transactions.find(t => t.id === transactionId);
+                     const accountData = this.accounts.find(a => a.id === transactionToDelete.accountId);
+                     if (accountData) {
+                         const updatedBalance = transactionToDelete.type === 'income'
+                             ? accountData.balance - transactionToDelete.amount
+                             : accountData.balance + transactionToDelete.amount;
+                         await updateDoc(doc(this.db, "accounts", transactionToDelete.accountId), { balance: updatedBalance });
+                     }
+                    await deleteDoc(doc(this.db, "transactions", transactionId));
+                    this.showMessageModal('Éxito', 'Transacción eliminada.');
+                    this.loadAllData();
+                });
+            }
+
+            async deleteBudget(budgetId) {
+                this.showConfirmModal('Confirmar Eliminación', '¿Estás seguro de que quieres eliminar este presupuesto?', async () => {
+                    await deleteDoc(doc(this.db, "budgets", budgetId));
+                    this.showMessageModal('Éxito', 'Presupuesto eliminado.');
+                    this.loadAllData();
+                });
+            }
+
+            async deleteCategory(categoryId) {
+                this.showConfirmModal('Confirmar Eliminación', '¿Estás seguro de que quieres eliminar esta categoría?', async () => {
+                    await deleteDoc(doc(this.db, "categories", categoryId));
+                    this.showMessageModal('Éxito', 'Categoría eliminada.');
+                    this.loadAllData();
+                });
+            }
+
+            async deleteBeneficiary(beneficiaryId) {
+                this.showConfirmModal('Confirmar Eliminación', '¿Estás seguro de que quieres eliminar este beneficiario?', async () => {
+                    await deleteDoc(doc(this.db, "beneficiaries", beneficiaryId));
+                    this.showMessageModal('Éxito', 'Beneficiario eliminado.');
+                    this.loadAllData();
+                });
+            }
+            
+            // Renderizado de las secciones
+            renderAccounts() {
+                this.accountListEl.innerHTML = this.accounts.length > 0 ? '' : '<p class="text-gray-500 dark:text-gray-400">No hay cuentas configuradas.</p>';
+                this.accounts.forEach(account => {
+                    this.accountListEl.innerHTML += `
+                        <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md shadow-sm flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold">${account.name}</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Tipo: ${account.type}</p>
+                                <p class="text-lg font-semibold text-green-600">$${account.balance.toFixed(2)}</p>
+                            </div>
+                            <button onclick="app.deleteAccount('${account.id}')" class="text-red-500 hover:text-red-700">🗑️</button>
+                        </div>
+                    `;
+                });
+            }
+
+            renderTransactions() {
+                this.transactionListEl.innerHTML = this.transactions.length > 0 ? '' : '<p class="text-gray-500 dark:text-gray-400">No hay transacciones registradas.</p>';
+                this.transactions.forEach(transaction => {
+                    const accountName = this.accounts.find(a => a.id === transaction.accountId)?.name || 'Cuenta no encontrada';
+                    const categoryName = this.categories.find(c => c.id === transaction.categoryId)?.name || 'Categoría no encontrada';
+                    const beneficiaryName = this.beneficiaries.find(b => b.id === transaction.beneficiaryId)?.name || 'Beneficiario no encontrado';
+
+                    this.transactionListEl.innerHTML += `
+                        <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md shadow-sm flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold">${transaction.description}</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Cuenta: ${accountName}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Categoría: ${categoryName}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Beneficiario: ${beneficiaryName}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Fecha: ${new Date(transaction.date).toLocaleDateString()}</p>
+                                <p class="text-lg font-semibold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                                    ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
+                                </p>
+                            </div>
+                            <button onclick="app.deleteTransaction('${transaction.id}')" class="text-red-500 hover:text-red-700">🗑️</button>
+                        </div>
+                    `;
+                });
+            }
+
+            renderDashboard() {
+                const totalNetWorth = this.accounts.reduce((sum, account) => {
+                    if (account.type === 'credit') {
+                        return sum + account.balance;
+                    } else if (account.type !== 'investment') {
+                        return sum + account.balance;
+                    }
+                    return sum;
+                }, 0);
+                
+                const totalInvestments = this.investments.reduce((sum, account) => sum + account.balance, 0);
+                const totalCashAccounts = this.accounts.filter(acc => acc.type !== 'investment').reduce((sum, account) => sum + account.balance, 0);
+                
+                this.totalNetWorthEl.textContent = `$${(totalCashAccounts + totalInvestments).toFixed(2)}`;
+                this.totalAccountsEl.textContent = this.accounts.length;
+                
+                const totalIncome = this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                const totalExpenses = this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                this.totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
+                this.totalExpensesEl.textContent = `$${totalExpenses.toFixed(2)}`;
+                
+                const recentTransactions = this.transactions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+                this.dashboardTransactionsEl.innerHTML = recentTransactions.length > 0 ? '' : '<p class="text-gray-500 dark:text-gray-400">No hay transacciones recientes.</p>';
+                recentTransactions.forEach(t => {
+                    const accountName = this.accounts.find(a => a.id === t.accountId)?.name || 'Cuenta no encontrada';
+                    this.dashboardTransactionsEl.innerHTML += `
+                        <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-md flex justify-between items-center">
+                            <div>
+                                <p class="font-bold">${t.description}</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">En ${accountName} - ${new Date(t.date).toLocaleDateString()}</p>
+                            </div>
+                            <p class="font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                                ${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}
+                            </p>
+                        </div>
+                    `;
+                });
+            }
+
+            renderBudgets() {
+                this.budgetsListEl.innerHTML = this.budgets.length > 0 ? '' : '<p class="text-gray-500 dark:text-gray-400">No hay presupuestos configurados.</p>';
+                const monthlyExpenses = this.transactions.filter(t => t.type === 'expense' && new Date(t.date).getMonth() === new Date().getMonth());
+                
+                this.budgets.forEach(budget => {
+                    const categoryName = this.categories.find(c => c.id === budget.categoryId)?.name || 'Categoría no encontrada';
+                    const spent = monthlyExpenses
+                        .filter(t => t.categoryId === budget.categoryId)
+                        .reduce((sum, t) => sum + t.amount, 0);
+                    const remaining = budget.amount - spent;
+                    const progress = (spent / budget.amount) * 100;
+                    const progressBarColor = progress > 100 ? 'bg-red-500' : 'bg-indigo-500';
+
+                    this.budgetsListEl.innerHTML += `
+                        <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold">${categoryName}</h4>
+                                <button onclick="app.deleteBudget('${budget.id}')" class="text-red-500 hover:text-red-700">🗑️</button>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Presupuesto: $${budget.amount.toFixed(2)}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Gastado: $${spent.toFixed(2)}</p>
+                            <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 my-2">
+                                <div class="h-2.5 rounded-full ${progressBarColor}" style="width: ${Math.min(100, progress)}%"></div>
+                            </div>
+                            <p class="text-sm font-semibold ${remaining < 0 ? 'text-red-500' : 'text-green-500'}">
+                                Quedan: $${remaining.toFixed(2)}
+                            </p>
+                        </div>
+                    `;
+                });
+            }
+
+            renderCategories() {
+                this.categoriesListEl.innerHTML = this.categories.length > 0 ? '' : '<p class="text-gray-500 dark:text-gray-400 text-sm">No hay categorías configuradas.</p>';
+                this.categories.forEach(category => {
+                    this.categoriesListEl.innerHTML += `
+                        <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-md shadow-sm flex justify-between items-center">
+                            <span>${category.name}</span>
+                            <button onclick="app.deleteCategory('${category.id}')" class="text-red-500 hover:text-red-700">🗑️</button>
+                        </div>
+                    `;
+                });
+            }
+
+            renderBeneficiaries() {
+                this.beneficiariesListEl.innerHTML = this.beneficiaries.length > 0 ? '' : '<p class="text-gray-500 dark:text-gray-400 text-sm">No hay beneficiarios configurados.</p>';
+                this.beneficiaries.forEach(beneficiary => {
+                    this.beneficiariesListEl.innerHTML += `
+                        <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-md shadow-sm flex justify-between items-center">
+                            <span>${beneficiary.name}</span>
+                            <button onclick="app.deleteBeneficiary('${beneficiary.id}')" class="text-red-500 hover:text-red-700">🗑️</button>
+                        </div>
+                    `;
+                });
+            }
+
+            renderReports() {
+                // Informe de Ingresos vs. Gastos
+                const totalIncome = this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                const totalExpenses = this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                this.incomeExpenseReportEl.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-green-100 dark:bg-green-800 p-4 rounded-lg">
+                            <p class="text-sm font-medium text-green-700 dark:text-green-200">Ingresos</p>
+                            <p class="text-2xl font-bold text-green-600 dark:text-green-100">$${totalIncome.toFixed(2)}</p>
+                        </div>
+                        <div class="bg-red-100 dark:bg-red-800 p-4 rounded-lg">
+                            <p class="text-sm font-medium text-red-700 dark:text-red-200">Gastos</p>
+                            <p class="text-2xl font-bold text-red-600 dark:text-red-100">$${totalExpenses.toFixed(2)}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Desglose de gastos por categoría
+                const expenseByCategory = {};
+                this.transactions.filter(t => t.type === 'expense').forEach(t => {
+                    const categoryName = this.categories.find(c => c.id === t.categoryId)?.name || 'Sin Categoría';
+                    expenseByCategory[categoryName] = (expenseByCategory[categoryName] || 0) + t.amount;
+                });
+                
+                let expenseReportHtml = `<div class="space-y-2">`;
+                for (const cat in expenseByCategory) {
+                    const percentage = (expenseByCategory[cat] / totalExpenses) * 100;
+                    expenseReportHtml += `
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold">${cat}</span>
+                            <span class="text-sm">$${expenseByCategory[cat].toFixed(2)} (${percentage.toFixed(1)}%)</span>
+                        </div>
+                    `;
+                }
+                expenseReportHtml += `</div>`;
+                this.expenseByCategoryReportEl.innerHTML = expenseReportHtml;
+
+                // Rendimiento de Inversiones
+                let investmentsReportHtml = `<div class="space-y-4">`;
+                if (this.investments.length > 0) {
+                    this.investments.forEach(inv => {
+                        const initialValue = inv.initialValue || 0;
+                        const currentValue = inv.balance;
+                        const gain = currentValue - initialValue;
+                        const roi = initialValue > 0 ? (gain / initialValue) * 100 : 0;
+                        const colorClass = gain >= 0 ? 'text-green-500' : 'text-red-500';
+
+                        investmentsReportHtml += `
+                            <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                                <h4 class="font-bold text-lg">${inv.name}</h4>
+                                <p class="text-sm">Valor Actual: <span class="font-semibold">$${currentValue.toFixed(2)}</span></p>
+                                <p class="text-sm">Ganancia/Pérdida: <span class="font-semibold ${colorClass}">$${gain.toFixed(2)}</span></p>
+                                <p class="text-sm">Retorno de Inversión (ROI): <span class="font-semibold ${colorClass}">${roi.toFixed(2)}%</span></p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    investmentsReportHtml += `<p class="text-gray-500 dark:text-gray-400">No hay inversiones registradas.</p>`;
+                }
+                investmentsReportHtml += `</div>`;
+                this.investmentsReportEl.innerHTML = investmentsReportHtml;
+            }
+
+            // Llenar listas desplegables
+            populateAccountSelects() {
+                const accountHtml = this.accounts.map(acc => `<option value="${acc.id}">${acc.name}</option>`).join('');
+                this.transactionAccountSelect.innerHTML = `<option value="">Seleccionar cuenta</option>` + accountHtml;
+                this.transferFromAccountSelect.innerHTML = `<option value="">Seleccionar cuenta de origen</option>` + accountHtml;
+                this.transferToAccountSelect.innerHTML = `<option value="">Seleccionar cuenta de destino</option>` + accountHtml;
+            }
+
+            populateCategorySelects() {
+                const categoryHtml = this.categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+                this.transactionCategorySelect.innerHTML = `<option value="">Seleccionar categoría</option>` + categoryHtml;
+                this.budgetCategorySelect.innerHTML = `<option value="">Seleccionar categoría</option>` + categoryHtml;
+            }
+
+            populateBeneficiarySelects() {
+                const beneficiaryHtml = this.beneficiaries.map(ben => `<option value="${ben.id}">${ben.name}</option>`).join('');
+                this.transactionBeneficiarySelect.innerHTML = `<option value="">Seleccionar beneficiario</option>` + beneficiaryHtml;
+            }
+
+            // Datos de ejemplo
+            async populateWithSampleData() {
+                try {
+                    const collections = ["accounts", "transactions", "categories", "beneficiaries", "budgets"];
+                    for (const col of collections) {
+                        const docs = await getDocs(collection(this.db, col));
+                        const batch = writeBatch(this.db);
+                        docs.forEach(d => batch.delete(d.ref));
+                        await batch.commit();
+                    }
+
+                    const sampleCategories = [{ name: "Salario" }, { name: "Alimentación" }, { name: "Transporte" }, { name: "Entretenimiento" }];
+                    const categoryRefs = [];
+                    for (const cat of sampleCategories) {
+                        const docRef = await addDoc(collection(this.db, "categories"), cat);
+                        categoryRefs.push(docRef.id);
+                    }
+                    
+                    const sampleBeneficiaries = [{ name: "Empleador S.A." }, { name: "Supermercado XYZ" }, { name: "Gasolinera ABC" }, { name: "Netflix" }];
+                    const beneficiaryRefs = [];
+                    for (const ben of sampleBeneficiaries) {
+                        const docRef = await addDoc(collection(this.db, "beneficiaries"), ben);
+                        beneficiaryRefs.push(docRef.id);
+                    }
+
+                    const sampleAccounts = [
+                        { name: "Cuenta Principal", type: "checking", balance: 1500000.00 },
+                        { name: "Ahorros para Viaje", type: "savings", balance: 500000.00 },
+                        { name: "Tarjeta de Crédito Visa", type: "credit", balance: -75000.00 },
+                        { name: "Fondo de Inversión XYZ", type: "investment", balance: 1000000.00, initialValue: 950000.00 }
+                    ];
+
+                    const accountRefs = [];
+                    for (const account of sampleAccounts) {
+                        const docRef = await addDoc(collection(this.db, "accounts"), account);
+                        accountRefs.push(docRef.id);
+                    }
+
+                    const sampleBudgets = [{ categoryId: categoryRefs[1], amount: 200000.00 }, { categoryId: categoryRefs[2], amount: 100000.00 }];
+                    for (const budget of sampleBudgets) {
+                        await addDoc(collection(this.db, "budgets"), budget);
+                    }
+                    
+                    const sampleTransactions = [
+                        { accountId: accountRefs[0], type: "income", amount: 2500000.00, categoryId: categoryRefs[0], beneficiaryId: beneficiaryRefs[0], description: "Salario Mensual", date: "2024-09-01" },
+                        { accountId: accountRefs[0], type: "expense", amount: 50000.00, categoryId: categoryRefs[1], beneficiaryId: beneficiaryRefs[1], description: "Compra de Mercado", date: "2024-09-02" },
+                        { accountId: accountRefs[1], type: "income", amount: 100000.00, categoryId: categoryRefs[0], beneficiaryId: beneficiaryRefs[0], description: "Transferencia a Ahorros", date: "2024-09-03" },
+                        { accountId: accountRefs[2], type: "expense", amount: 25000.00, categoryId: categoryRefs[3], beneficiaryId: beneficiaryRefs[3], description: "Cena en Restaurante", date: "2024-09-04" },
+                        { accountId: accountRefs[0], type: "expense", amount: 150000.00, categoryId: categoryRefs[1], beneficiaryId: beneficiaryRefs[1], description: "Pago de Alquiler", date: "2024-09-05" },
+                        { accountId: accountRefs[0], type: "expense", amount: 50000.00, categoryId: categoryRefs[2], beneficiaryId: beneficiaryRefs[2], description: "Recarga de Combustible", date: "2024-09-06" }
+                    ];
+
+                    for (const transaction of sampleTransactions) {
+                        await addDoc(collection(this.db, "transactions"), transaction);
+                    }
+
+                    this.showMessageModal('Éxito', 'Datos de ejemplo cargados y actualizados exitosamente.');
+                    this.loadAllData();
+                } catch (error) {
+                    console.error("Error al cargar datos de ejemplo:", error);
+                    this.showMessageModal('Error', 'Hubo un error al cargar los datos de ejemplo. Revisa la consola.');
+                }
+            }
+        }
+
+        // =========================================
+        // FUNCIONES GLOBALES DE NAVEGACIÓN
+        // =========================================
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('fade-in');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+        }
+
+        function hideMessageModal() {
+            document.getElementById('messageModal').classList.add('hidden');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+        
+        // Exponer funciones globales a la ventana
+        window.showSection = showSection;
+        window.hideMessageModal = hideMessageModal;
+        window.toggleMobileMenu = toggleMobileMenu;
+
+        // Inicializar la aplicación al cargar el DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new FinanceApp();
+            showSection('dashboard');
+        });
+
+    </script>
+</body>
+</html>
