@@ -1,1343 +1,1288 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-	<link rel="manifest" href="/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinancePro - Sistema de Finanzas Personales</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <style>
-        .fade-in { animation: fadeIn 0.3s ease-in; }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         .card-hover:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
         }
+        
+        .account-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .account-checking { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .account-savings { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .account-credit { background: linear-gradient(135deg, #FF6B6B 0%, #FFB643 100%); }
+
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
-    
-    <nav class="bg-white shadow-lg sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <span class="text-xl md:text-2xl font-bold text-indigo-600">🏦 FinancePro</span>
-                </div>
-                
-                <div class="md:hidden flex items-center">
-                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-2 lg:space-x-4">
-                    <button onclick="showSection('dashboard')" class="nav-btn bg-indigo-600 text-white px-2 lg:px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors text-sm lg:text-base">Dashboard</button>
-                    <button onclick="showSection('accounts')" class="nav-btn bg-blue-600 text-white px-2 lg:px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm lg:text-base">Cuentas</button>
-                    <button onclick="showSection('transactions')" class="nav-btn bg-green-600 text-white px-2 lg:px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm lg:text-base">Transacciones</button>
-                    <button onclick="showSection('transfers')" class="nav-btn bg-orange-600 text-white px-2 lg:px-4 py-2 rounded-md hover:bg-orange-700 transition-colors text-sm lg:text-base">Transferencias</button>
-                    <button onclick="showSection('budget')" class="nav-btn bg-pink-600 text-white px-2 lg:px-4 py-2 rounded-md hover:bg-pink-700 transition-colors text-sm lg:text-base">Presupuesto</button>
-                    <button onclick="showSection('investments')" class="nav-btn bg-purple-600 text-white px-2 lg:px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm lg:text-base">Inversiones</button>
-                    <button onclick="showSection('settings')" class="nav-btn bg-gray-600 text-white px-2 lg:px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm lg:text-base">⚙️</button>
-                </div>
-            </div>
-            
-            <div id="mobileMenu" class="md:hidden hidden bg-white border-t border-gray-200">
-                <div class="px-2 pt-2 pb-3 space-y-1">
-                    <button onclick="showSection('dashboard'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">📊 Dashboard</button>
-                    <button onclick="showSection('accounts'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">🏦 Cuentas</button>
-                    <button onclick="showSection('transactions'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">💳 Transacciones</button>
-                    <button onclick="showSection('transfers'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">🔄 Transferencias</button>
-                    <button onclick="showSection('budget'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">💰 Presupuesto</button>
-                    <button onclick="showSection('investments'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">📈 Inversiones</button>
-                    <button onclick="showSection('settings'); toggleMobileMenu()" class="mobile-nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">⚙️ Configuración</button>
-                </div>
-            </div>
-        </div>
-    </nav>
+<body class="bg-gray-100 font-sans">
 
-    <main class="max-w-7xl mx-auto py-6 px-4">
-        
-        <div id="dashboard" class="section">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard Financiero</h1>
-                <p class="text-gray-600">Resumen de tu situación financiera</p>
+    <div id="mobileMenu" class="md:hidden fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-gray-800 opacity-75" onclick="toggleMobileMenu()"></div>
+        <div class="relative w-64 bg-white h-full shadow-xl p-6">
+            <button onclick="toggleMobileMenu()" class="absolute top-4 right-4 text-gray-600 hover:text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="mt-8">
+                <h2 class="text-2xl font-bold text-gray-800">FinancePro</h2>
+                <nav class="mt-8 space-y-4">
+                    <a href="#" onclick="showSection('dashboard')" class="block text-lg text-gray-600 hover:text-purple-600">Dashboard</a>
+                    <a href="#" onclick="showSection('accounts')" class="block text-lg text-gray-600 hover:text-purple-600">Cuentas</a>
+                    <a href="#" onclick="showSection('transactions')" class="block text-lg text-gray-600 hover:text-purple-600">Transacciones</a>
+                    <a href="#" onclick="showSection('transfers')" class="block text-lg text-gray-600 hover:text-purple-600">Transferencias</a>
+                    <a href="#" onclick="showSection('budget')" class="block text-lg text-gray-600 hover:text-purple-600">Presupuestos</a>
+                    <a href="#" onclick="showSection('investments')" class="block text-lg text-gray-600 hover:text-purple-600">Inversiones</a>
+                    <a href="#" onclick="showSection('settings')" class="block text-lg text-gray-600 hover:text-purple-600">Configuración</a>
+                </nav>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-emerald-100 text-sm font-medium">Patrimonio Total</p>
-                            <p id="totalNetWorth" class="text-3xl font-bold">$0.00</p>
-                        </div>
-                        <div class="bg-emerald-400 bg-opacity-30 rounded-full p-3">
-                            <span class="text-2xl">💎</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-blue-100 text-sm font-medium">Total Cuentas</p>
-                            <p id="totalAccounts" class="text-3xl font-bold">0</p>
-                        </div>
-                        <div class="bg-blue-400 bg-opacity-30 rounded-full p-3">
-                            <span class="text-2xl">🏦</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-purple-100 text-sm font-medium">Inversiones</p>
-                            <p id="totalInvestments" class="text-3xl font-bold">$0.00</p>
-                        </div>
-                        <div class="bg-purple-400 bg-opacity-30 rounded-full p-3">
-                            <span class="text-2xl">📈</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-orange-100 text-sm font-medium">Transacciones</p>
-                            <p id="totalTransactions" class="text-3xl font-bold">0</p>
-                        </div>
-                        <div class="bg-orange-400 bg-opacity-30 rounded-full p-3">
-                            <span class="text-2xl">💰</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-                <h3 class="text-xl font-semibold mb-4">Tendencia de Ingresos vs Gastos</h3>
-                <canvas id="financeChart"></canvas>
-            </div>
+        </div>
+    </div>
 
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Cuentas Principales</h3>
-                <div id="dashboardAccounts" class="space-y-4">
-                    <div class="text-center py-8 text-gray-500">
-                        <span class="text-4xl">🏦</span>
-                        <p class="mt-2">No tienes cuentas configuradas</p>
-                        <button onclick="showSection('accounts')" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">
-                            Agregar Primera Cuenta
-                        </button>
+    <div class="flex">
+        <aside class="w-64 bg-white h-screen shadow-lg p-6 hidden md:block">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-purple-700">FinancePro</h1>
+            </div>
+            <nav class="space-y-4">
+                <a href="#" onclick="showSection('dashboard')" class="flex items-center space-x-3 text-lg text-gray-600 hover:text-purple-600 hover:bg-gray-100 p-3 rounded-md transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="showSection('accounts')" class="flex items-center space-x-3 text-lg text-gray-600 hover:text-purple-600 hover:bg-gray-100 p-3 rounded-md transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.838 4.252 9.406 4 8 4a2 2 0 00-2 2v15h4v-3.586a1 1 0 01.293-.707l1.293-1.293M12 6.253c1.162.001 2.594.252 4 .748v13m-4-13a2 2 0 01-2-2h4a2 2 0 01-2 2zM9 20v-3.586a1 1 0 01.293-.707l1.293-1.293m0 0a1 1 0 011.414 0l1.293 1.293a1 1 0 01.293.707V20M9 20h6"/></svg>
+                    <span>Cuentas</span>
+                </a>
+                <a href="#" onclick="showSection('transactions')" class="flex items-center space-x-3 text-lg text-gray-600 hover:text-purple-600 hover:bg-gray-100 p-3 rounded-md transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9v2.25V9m0 0a2 2 0 00-2 2m2-2a2 2 0 012 2v.25M15 11.25V17a2 2 0 002 2h2a2 2 0 002-2v-5.75m-5.75-2.25h1.25m-1.25 0h-1.25m-1.25 0V11a2 2 0 00-2 2h-1a2 2 0 00-2-2V9.25m2 2V12a2 2 0 00-2 2h-1a2 2 0 00-2-2V11m2 2V9.25"/></svg>
+                    <span>Transacciones</span>
+                </a>
+                <a href="#" onclick="showSection('transfers')" class="flex items-center space-x-3 text-lg text-gray-600 hover:text-purple-600 hover:bg-gray-100 p-3 rounded-md transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-3-3m3 3l-3 3M4 17h12m0 0l3 3m-3-3l3-3"/></svg>
+                    <span>Transferencias</span>
+                </a>
+                <a href="#" onclick="showSection('budget')" class="flex items-center space-x-3 text-lg text-gray-600 hover:text-purple-600 hover:bg-gray-100 p-3 rounded-md transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2-7a2 2 0 11-4 0 2 2 0 014 0zM12 3v18M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <span>Presupuestos</span>
+                </a>
+                <a href="#" onclick="showSection('investments')" class="flex items-center space-x-3 text-lg text-gray-600 hover:text-purple-600 hover:bg-gray-100 p-3 rounded-md transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3zM12 8V5m0 3v8m0-8h3m-3 0h-3m3 0V5m0 3v8m0-8h3m-3 0h-3m3 0V5m0 3v8m0-8h3m-3 0h-3M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 11v8m0-8V5m0 3v8m0-8h3m-3 0h-3M12 11c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3z"/></svg>
+                    <span>Inversiones</span>
+                </a>
+                <a href="#" onclick="showSection('settings')" class="flex items-center space-x-3 text-lg text-gray-600 hover:text-purple-600 hover:bg-gray-100 p-3 rounded-md transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.82 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.82 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.82-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.82-3.31 2.37-2.37.158.093.304.18.441.264V4.542z"/></svg>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-8">
+            <header class="flex items-center justify-between mb-8 md:hidden">
+                <h1 class="text-3xl font-bold text-purple-700">FinancePro</h1>
+                <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </header>
+
+            <section id="dashboard" class="fade-in">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                        <h3 class="text-gray-500 text-lg">Balance Total</h3>
+                        <p id="totalBalance" class="text-4xl font-extrabold text-purple-600 mt-2">Cargando...</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                        <h3 class="text-gray-500 text-lg">Ingresos Totales</h3>
+                        <p id="totalIncome" class="text-4xl font-extrabold text-green-500 mt-2">Cargando...</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                        <h3 class="text-gray-500 text-lg">Gastos Totales</h3>
+                        <p id="totalExpenses" class="text-4xl font-extrabold text-red-500 mt-2">Cargando...</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                        <h3 class="text-gray-500 text-lg">Patrimonio Neto</h3>
+                        <p id="totalNetWorthEl" class="text-4xl font-extrabold text-gray-800 mt-2">Cargando...</p>
                     </div>
                 </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Transacciones Recientes</h3>
-                <div id="dashboardTransactions" class="space-y-3">
-                    <div class="text-center py-8 text-gray-500">
-                        <span class="text-4xl">💳</span>
-                        <p class="mt-2">No hay transacciones registradas</p>
-                        <button onclick="showSection('transactions')" class="mt-4 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                            Registrar Primera Transacción
-                        </button>
+
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Mis Cuentas</h3>
+                    <div id="dashboardAccounts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Resumen de Gastos por Categoría</h3>
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Ingresos vs. Gastos (Últimos 6 meses)</h3>
+                        <canvas id="summaryChart"></canvas>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <div id="accounts" class="section hidden">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestión de Cuentas</h1>
-                <p class="text-gray-600">Administra todas tus cuentas bancarias y tarjetas</p>
-            </div>
+
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Transacciones Recientes</h3>
+                    <div id="dashboardTransactions" class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        </div>
+                </div>
+            </section>
+
+            <section id="accounts" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Cuentas</h2>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Añadir Nueva Cuenta</h3>
+                    <form id="accountForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <input type="text" id="accountName" placeholder="Nombre de la Cuenta" class="p-3 border rounded-md">
+                        <select id="accountType" class="p-3 border rounded-md">
+                            <option value="">Tipo de Cuenta</option>
+                            <option value="checking">Corriente</option>
+                            <option value="savings">Ahorros</option>
+                            <option value="credit">Crédito</option>
+                        </select>
+                        <input type="text" id="accountBank" placeholder="Banco/Institución" class="p-3 border rounded-md">
+                        <input type="number" id="accountBalance" placeholder="Balance Inicial" class="p-3 border rounded-md" step="0.01">
+                        <input type="text" id="accountNumber" placeholder="Número de Cuenta (opcional)" class="p-3 border rounded-md">
+                        <div id="creditLimitField" class="hidden sm:col-span-2">
+                            <input type="number" id="creditLimit" placeholder="Límite de Crédito" class="p-3 border rounded-md w-full" step="0.01">
+                        </div>
+                        <button type="submit" class="bg-purple-600 text-white p-3 rounded-md hover:bg-purple-700 transition-colors duration-200 lg:col-span-2">Añadir Cuenta</button>
+                    </form>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Todas las Cuentas</h3>
+                    <div id="accountsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        </div>
+                </div>
+            </section>
+
+            <section id="transactions" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Transacciones</h2>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Añadir Nueva Transacción</h3>
+                    <form id="transactionForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <select id="transactionType" class="p-3 border rounded-md">
+                            <option value="">Tipo</option>
+                            <option value="income">Ingreso</option>
+                            <option value="expense">Gasto</option>
+                        </select>
+                        <select id="transactionAccount" class="p-3 border rounded-md">
+                            <option value="">Selecciona Cuenta</option>
+                            </select>
+                        <select id="transactionCategory" class="p-3 border rounded-md">
+                            <option value="">Categoría</option>
+                            </select>
+                        <input type="number" id="transactionAmount" placeholder="Monto" class="p-3 border rounded-md" step="0.01">
+                        <input type="text" id="transactionDescription" placeholder="Descripción" class="p-3 border rounded-md">
+                        <input type="date" id="transactionDate" class="p-3 border rounded-md">
+                        <button type="submit" class="bg-purple-600 text-white p-3 rounded-md hover:bg-purple-700 transition-colors duration-200 lg:col-span-3">Añadir Transacción</button>
+                    </form>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Historial de Transacciones</h3>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <input type="text" id="searchTransactions" placeholder="Buscar por descripción..." class="flex-1 p-3 border rounded-md">
+                    </div>
+                    <div id="transactionsList" class="overflow-x-auto">
+                        </div>
+                </div>
+            </section>
             
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Nueva Cuenta</h3>
-                <form id="accountForm" class="space-y-4">
+            <section id="transfers" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Transferencias</h2>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Nueva Transferencia</h3>
+                    <form id="transferForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <select id="transferFromAccount" class="p-3 border rounded-md">
+                            <option value="">De la Cuenta</option>
+                            </select>
+                        <select id="transferToAccount" class="p-3 border rounded-md">
+                            <option value="">A la Cuenta</option>
+                            </select>
+                        <input type="number" id="transferAmount" placeholder="Monto" class="p-3 border rounded-md" step="0.01">
+                        <input type="date" id="transferDate" class="p-3 border rounded-md">
+                        <input type="text" id="transferDescription" placeholder="Descripción" class="p-3 border rounded-md lg:col-span-2">
+                        <input type="number" id="transferFee" placeholder="Comisión (opcional)" class="p-3 border rounded-md" step="0.01">
+                        <button type="submit" class="bg-purple-600 text-white p-3 rounded-md hover:bg-purple-700 transition-colors duration-200 lg:col-span-4">Realizar Transferencia</button>
+                    </form>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Historial de Transferencias</h3>
+                    <div id="transfersList" class="overflow-x-auto">
+                        </div>
+                </div>
+            </section>
+            
+            <section id="budget" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Presupuestos</h2>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Crear Presupuesto</h3>
+                    <form id="budgetForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <select id="budgetCategory" class="p-3 border rounded-md">
+                            <option value="">Categoría</option>
+                            </select>
+                        <input type="number" id="budgetAmount" placeholder="Monto Presupuestado" class="p-3 border rounded-md" step="0.01">
+                        <input type="month" id="budgetMonth" class="p-3 border rounded-md">
+                        <button type="submit" class="bg-purple-600 text-white p-3 rounded-md hover:bg-purple-700 transition-colors duration-200 lg:col-span-3">Añadir Presupuesto</button>
+                    </form>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Resumen Mensual</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-4">
+                        <div class="bg-gray-50 p-4 rounded-md text-center">
+                            <p class="text-gray-500">Total Presupuestado</p>
+                            <p id="totalBudgetEl" class="text-2xl font-bold mt-1">Cargando...</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md text-center">
+                            <p class="text-gray-500">Total Gastado</p>
+                            <p id="totalSpentEl" class="text-2xl font-bold mt-1">Cargando...</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md text-center">
+                            <p class="text-gray-500">Restante</p>
+                            <p id="totalRemainingEl" class="text-2xl font-bold mt-1">Cargando...</p>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="budgetProgressEl" class="bg-purple-600 h-4 rounded-full" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Presupuestos por Categoría</h3>
+                    <div id="budgetCategoriesList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        </div>
+                </div>
+            </section>
+            
+            <section id="investments" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Inversiones</h2>
+                <div class="p-8 bg-white rounded-xl shadow-lg text-center">
+                    <p class="text-gray-600 text-lg">Esta sección está en desarrollo. ¡Pronto podrás gestionar tus inversiones aquí!</p>
+                </div>
+            </section>
+            
+            <section id="settings" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Configuración</h2>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Resumen de Datos</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-md text-center">
+                            <p class="text-gray-500">Cuentas</p>
+                            <p id="settingsAccountCount" class="text-2xl font-bold mt-1">0</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md text-center">
+                            <p class="text-gray-500">Transacciones</p>
+                            <p id="settingsTransactionCount" class="text-2xl font-bold mt-1">0</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md text-center">
+                            <p class="text-gray-500">Tamaño de los Datos</p>
+                            <p id="settingsDataSize" class="text-2xl font-bold mt-1">0 KB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Gestión de Datos</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Cuenta *</label>
-                            <input type="text" id="accountName" placeholder="Ej: Cuenta Corriente Principal" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Cuenta *</label>
-                            <select id="accountType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                                <option value="">Seleccionar tipo</option>
-                                <option value="checking">Cuenta Corriente</option>
-                                <option value="savings">Cuenta de Ahorros</option>
-                                <option value="credit">Tarjeta de Crédito</option>
-                                <option value="investment">Cuenta de Inversión</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Banco/Institución *</label>
-                            <input type="text" id="accountBank" placeholder="Ej: Banco Santander" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Saldo Inicial *</label>
-                            <input type="number" id="accountBalance" step="0.01" placeholder="0.00" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                        </div>
-                        
-                        <div id="creditLimitField" class="hidden">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Límite de Crédito</label>
-                            <input type="number" id="creditLimit" step="0.01" placeholder="0.00" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Número de Cuenta (opcional)</label>
-                            <input type="text" id="accountNumber" placeholder="**** **** **** 1234" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" onclick="clearAccountForm()" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
-                            Limpiar
-                        </button>
-                        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
-                            Agregar Cuenta
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Mis Cuentas</h3>
-                <div id="accountsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="text-center py-12 text-gray-500 col-span-full">
-                        <span class="text-6xl">🏦</span>
-                        <p class="text-xl font-medium mb-2 mt-4">No tienes cuentas configuradas</p>
-                        <p class="text-sm">Agrega tu primera cuenta usando el formulario de arriba</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="transactions" class="section hidden">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestión de Transacciones</h1>
-                <p class="text-gray-600">Registra y administra tus ingresos y gastos</p>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Nueva Transacción</h3>
-                <form id="transactionForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Cuenta *</label>
-                            <select id="transactionAccount" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                                <option value="">Seleccionar cuenta</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo *</label>
-                            <select id="transactionType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                                <option value="income">💰 Ingreso</option>
-                                <option value="expense">💸 Gasto</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Cantidad *</label>
-                            <input type="number" id="transactionAmount" step="0.01" placeholder="0.00" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Categoría *</label>
-                            <select id="transactionCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                                <option value="">Seleccionar categoría</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha *</label>
-                            <input type="date" id="transactionDate" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Descripción *</label>
-                            <input type="text" id="transactionDescription" placeholder="Descripción de la transacción" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" onclick="clearTransactionForm()" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
-                            Limpiar
-                        </button>
-                        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                            Registrar Transacción
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Historial de Transacciones</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cuenta</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionsList" class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                                    <span class="text-4xl">💳</span>
-                                    <p class="mt-2">No hay transacciones registradas</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <div id="transfers" class="section hidden">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Transferencias entre Cuentas</h1>
-                <p class="text-gray-600">Transfiere dinero entre tus cuentas bancarias, Nequi, Daviplata, etc.</p>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Nueva Transferencia</h3>
-                <form id="transferForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <h4 class="font-medium text-blue-900 mb-3">💸 Cuenta Origen</h4>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Desde *</label>
-                                    <select id="transferFromAccount" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                        <option value="">Seleccionar cuenta origen</option>
-                                    </select>
-                                </div>
-                                <div id="fromAccountBalance" class="text-sm text-gray-600"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="font-medium text-green-900 mb-3">💰 Cuenta Destino</h4>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Hacia *</label>
-                                    <select id="transferToAccount" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required>
-                                        <option value="">Seleccionar cuenta destino</option>
-                                    </select>
-                                </div>
-                                <div id="toAccountBalance" class="text-sm text-gray-600"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Cantidad a Transferir *</label>
-                            <input type="number" id="transferAmount" step="0.01" placeholder="0.00" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha *</label>
-                            <input type="date" id="transferDate" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Comisión (opcional)</label>
-                            <input type="number" id="transferFee" step="0.01" placeholder="0.00" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Descripción *</label>
-                        <input type="text" id="transferDescription" placeholder="Ej: Transferencia a Nequi para gastos" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
-                    </div>
-                    
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <div class="flex items-start">
-                            <span class="text-yellow-600 text-lg mr-2">⚠️</span>
-                            <div class="text-sm text-yellow-800">
-                                <p class="font-medium mb-1">Información importante:</p>
-                                <ul class="list-disc list-inside space-y-1">
-                                    <li>La cantidad se descontará de la cuenta origen</li>
-                                    <li>La cantidad se sumará a la cuenta destino</li>
-                                    <li>Si hay comisión, se descontará adicional de la cuenta origen</li>
-                                    <li>Verifica que tengas saldo suficiente antes de transferir</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" onclick="clearTransferForm()" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
-                            Limpiar
-                        </button>
-                        <button type="submit" class="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors">
-                            Realizar Transferencia
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Historial de Transferencias</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Desde</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hacia</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comisión</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transfersList" class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                                    <span class="text-4xl">🔄</span>
-                                    <p class="mt-2">No hay transferencias registradas</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <div id="budget" class="section hidden">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestión de Presupuesto</h1>
-                <p class="text-gray-600">Planifica y controla tus gastos mensuales por categoría</p>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Presupuesto Mensual</h3>
-                    <div class="flex items-center space-x-4">
-                        <label class="text-sm font-medium text-gray-700">Mes:</label>
-                        <input type="month" id="budgetMonth" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500">
-                        <button onclick="app.loadBudgetForMonth()" class="bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700 transition-colors">
-                            Cargar Mes
+                        <button onclick="app.clearAllData()" class="bg-red-500 text-white p-3 rounded-md hover:bg-red-600 transition-colors duration-200">
+                            Eliminar todos los datos
                         </button>
                     </div>
                 </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
-                        <p class="text-blue-100 text-sm">Presupuesto Total</p>
-                        <p id="totalBudget" class="text-2xl font-bold">$0.00</p>
-                    </div>
-                    <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-4 text-white">
-                        <p class="text-red-100 text-sm">Gastado</p>
-                        <p id="totalSpent" class="text-2xl font-bold">$0.00</p>
-                    </div>
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
-                        <p class="text-green-100 text-sm">Disponible</p>
-                        <p id="totalRemaining" class="text-2xl font-bold">$0.00</p>
-                    </div>
-                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
-                        <p class="text-purple-100 text-sm">Progreso</p>
-                        <p id="budgetProgress" class="text-2xl font-bold">0%</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Agregar Categoría al Presupuesto</h3>
-                <form id="budgetForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Categoría *</label>
-                            <select id="budgetCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500" required>
-                                <option value="">Seleccionar categoría</option>
-                                <option value="Alimentación">🍽️ Alimentación</option>
-                                <option value="Transporte">🚗 Transporte</option>
-                                <option value="Entretenimiento">🎬 Entretenimiento</option>
-                                <option value="Salud">🏥 Salud</option>
-                                <option value="Educación">📚 Educación</option>
-                                <option value="Ropa">👕 Ropa</option>
-                                <option value="Hogar">🏠 Hogar</option>
-                                <option value="Servicios">💡 Servicios</option>
-                                <option value="Otros gastos">📦 Otros gastos</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Monto Presupuestado *</label>
-                            <input type="number" id="budgetAmount" step="0.01" placeholder="0.00" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500" required>
-                        </div>
-                        
-                        <div class="flex items-end">
-                            <button type="submit" class="w-full bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700 transition-colors">
-                                Agregar al Presupuesto
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Categorías del Presupuesto</h3>
-                <div id="budgetCategoriesList" class="space-y-4">
-                    <div class="text-center py-8 text-gray-500">
-                        <span class="text-4xl">💰</span>
-                        <p class="mt-2">No hay categorías en el presupuesto</p>
-                        <p class="text-sm">Agrega categorías usando el formulario de arriba</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="investments" class="section hidden">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestión de Inversiones</h1>
-                <p class="text-gray-600">Administra tu portafolio de inversiones</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-green-100 text-sm font-medium">Valor Total</p>
-                            <p id="totalInvestmentsValue" class="text-3xl font-bold">$0.00</p>
-                        </div>
-                        <div class="bg-green-400 bg-opacity-30 rounded-full p-3">
-                            <span class="text-2xl">📈</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-purple-100 text-sm font-medium">Ganancia/Pérdida</p>
-                            <p id="totalInvestmentsGain" class="text-3xl font-bold">$0.00</p>
-                        </div>
-                        <div class="bg-purple-400 bg-opacity-30 rounded-full p-3">
-                            <span class="text-2xl">💰</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-blue-100 text-sm font-medium">Activos</p>
-                            <p id="investmentAssetCount" class="text-3xl font-bold">0</p>
-                        </div>
-                        <div class="bg-blue-400 bg-opacity-30 rounded-full p-3">
-                            <span class="text-2xl">💎</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Portafolio por Tipo de Activo</h3>
-                <canvas id="investmentChart"></canvas>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Nueva Inversión</h3>
-                <form id="investmentForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Activo *</label>
-                            <input type="text" id="assetName" placeholder="Ej: BTC, GOOGL" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Activo *</label>
-                            <select id="assetType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" required>
-                                <option value="">Seleccionar tipo</option>
-                                <option value="stock">Acciones</option>
-                                <option value="crypto">Criptomonedas</option>
-                                <option value="etf">ETF</option>
-                                <option value="fund">Fondo Mutuo</option>
-                                <option value="bond">Bono</option>
-                                <option value="realEstate">Bienes Raíces</option>
-                                <option value="other">Otro</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Cantidad (acciones/unidades) *</label>
-                            <input type="number" id="assetQuantity" step="0.0001" placeholder="1.000" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Precio de Compra *</label>
-                            <input type="number" id="assetPrice" step="0.01" placeholder="0.00" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Compra *</label>
-                            <input type="date" id="assetDate" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Valor Actual (opcional)</label>
-                            <input type="number" id="assetCurrentValue" step="0.01" placeholder="0.00" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" onclick="clearInvestmentForm()" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
-                            Limpiar
-                        </button>
-                        <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
-                            Agregar Inversión
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Mi Portafolio</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Activo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio de Compra</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor Actual</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ganancia/Pérdida</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="investmentsList" class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                                    <span class="text-4xl">📈</span>
-                                    <p class="mt-2">No hay inversiones registradas</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <div id="settings" class="section hidden">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Configuración del Sistema</h1>
-                <p class="text-gray-600">Gestiona tus datos, edita información y sincroniza entre dispositivos</p>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">📊 Información del Sistema</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Cuentas Registradas</p>
-                        <p id="settingsAccountCount" class="text-2xl font-bold text-blue-600">0</p>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Transacciones</p>
-                        <p id="settingsTransactionCount" class="text-2xl font-bold text-green-600">0</p>
-                    </div>
-                    <div class="bg-purple-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Tamaño de Datos</p>
-                        <p id="settingsDataSize" class="text-2xl font-bold text-purple-600">0 KB</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">✏️ Editar Información</h3>
-                
-                <div class="mb-6">
-                    <h4 class="font-medium text-gray-900 mb-3">Editar Cuentas</h4>
-                    <div class="space-y-3" id="editAccountsList">
-                        <p class="text-gray-500 text-sm">No hay cuentas para editar</p>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="font-medium text-gray-900 mb-3">Editar Transacciones Recientes</h4>
-                    <div class="space-y-3" id="editTransactionsList">
-                        <p class="text-gray-500 text-sm">No hay transacciones para editar</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">☁️ Sincronización y Respaldo</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-900 mb-3">📤 Exportar Datos</h4>
-                        <p class="text-sm text-gray-600 mb-4">Descarga todos tus datos financieros para respaldo o transferencia a otro dispositivo.</p>
-                        <div class="space-y-2">
-                            <button onclick="app.exportData('json')" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                                💾 Descargar JSON
-                            </button>
-                            <button onclick="app.exportData('csv')" class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                                📊 Descargar CSV
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-900 mb-3">📥 Importar Datos</h4>
-                        <p class="text-sm text-gray-600 mb-4">Carga datos desde otro dispositivo o respaldo anterior.</p>
-                        <div class="space-y-2">
-                            <input type="file" id="importFile" accept=".json,.csv" class="hidden" onchange="app.importData(this)">
-                            <button onclick="document.getElementById('importFile').click()" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">
-                                📁 Seleccionar Archivo
-                            </button>
-                            <p class="text-xs text-gray-500">Formatos soportados: JSON, CSV</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-6 border-t pt-6">
-                    <h4 class="font-medium text-gray-900 mb-3">🔄 Sincronización entre Dispositivos</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Generar Código de Sincronización</label>
-                            <div class="flex space-x-2">
-                                <button onclick="app.generateSyncCode()" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">
-                                    🔑 Generar Código
-                                </button>
-                                <input type="text" id="generatedSyncCode" readonly placeholder="Código aparecerá aquí" class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">Válido por 10 minutos</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Usar Código de Sincronización</label>
-                            <div class="flex space-x-2">
-                                <input type="text" id="syncCodeInput" placeholder="Ingresa el código" class="flex-1 px-3 py-2 border border-gray-300 rounded-md">
-                                <button onclick="app.useSyncCode()" class="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors">
-                                    🔄 Sincronizar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">🏆 Configuración de Cuentas Principales</h3>
-                <p class="text-gray-600 mb-4">Las cuentas principales aparecen en el dashboard. Puedes marcar hasta 3 cuentas como principales.</p>
-                <div class="space-y-3" id="mainAccountsConfig">
-                    <p class="text-gray-500 text-sm">No hay cuentas disponibles</p>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">🔧 Acciones del Sistema</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <button onclick="app.clearAllData()" class="bg-red-600 text-white px-4 py-3 rounded-md hover:bg-red-700 transition-colors">
-                        🗑️ Limpiar Todos los Datos
-                    </button>
-                    <button onclick="app.resetToDefaults()" class="bg-yellow-600 text-white px-4 py-3 rounded-md hover:bg-yellow-700 transition-colors">
-                        🔄 Restaurar Configuración
-                    </button>
-                    <button onclick="app.optimizeData()" class="bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 transition-colors">
-                        ⚡ Optimizar Datos
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-    </main>
-    
+            </section>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+
     <script>
+        // =========================================
+        // CONFIGURACIÓN DE FIREBASE
+        // =========================================
+        // Asegúrate de reemplazar estos valores con la configuración de tu propio proyecto de Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyB_YOUR_API_KEY",
+          authDomain: "your-project-id.firebaseapp.com",
+          projectId: "your-project-id",
+          storageBucket: "your-project-id.appspot.com",
+          messagingSenderId: "123456789",
+          appId: "1:123456789:web:abcdefg"
+        };
+
+        // Inicializa Firebase y Firestore
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // =========================================
+        // FUNCIONES GLOBALES
+        // =========================================
+        const sections = ['dashboard', 'accounts', 'transactions', 'transfers', 'budget', 'investments', 'settings'];
+        const expenseCategories = ["Alimentación", "Transporte", "Entretenimiento", "Salud", "Educación", "Ropa", "Hogar", "Servicios", "Otros gastos"];
+
+        function showSection(sectionId) {
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) {
+                    if (id === sectionId) {
+                        section.classList.remove('hidden');
+                        section.classList.add('fade-in');
+                    } else {
+                        section.classList.add('hidden');
+                        section.classList.remove('fade-in');
+                    }
+                }
+            });
+            if (sectionId === 'transactions') {
+                financeApp.updateAccountOptions();
+                financeApp.updateCategoryOptions();
+            }
+            if (sectionId === 'transfers') {
+                financeApp.updateTransferOptions();
+            }
+            if (sectionId === 'settings') {
+                financeApp.updateSettings();
+            }
+            if (sectionId === 'budget') {
+                financeApp.updateBudgetSummary();
+            }
+        }
+        
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
         // =========================================
         // CLASE PRINCIPAL DE LA APLICACIÓN
         // =========================================
         class FinanceApp {
             constructor() {
-                this.data = this.loadData();
-                this.accountForm = document.getElementById('accountForm');
-                this.transactionForm = document.getElementById('transactionForm');
-                this.transferForm = document.getElementById('transferForm');
-                this.budgetForm = document.getElementById('budgetForm');
-                this.investmentForm = document.getElementById('investmentForm');
-                this.setupEventListeners();
-                this.renderAll();
+                this.addTransactionForm = document.getElementById('transactionForm');
+                this.typeSelect = document.getElementById('transactionType');
+                this.categorySelect = document.getElementById('transactionCategory');
+                this.amountInput = document.getElementById('transactionAmount');
+                this.descriptionInput = document.getElementById('transactionDescription');
+                this.dateInput = document.getElementById('transactionDate');
+                this.accountSelect = document.getElementById('transactionAccount');
+                this.transactionsList = document.getElementById('transactionsList');
+                this.totalBalanceEl = document.getElementById('totalBalance');
+                this.totalNetWorthEl = document.getElementById('totalNetWorth');
+                this.totalAccountsEl = document.getElementById('totalAccounts');
+                this.totalInvestmentsEl = document.getElementById('totalInvestments');
+                this.totalTransactionsEl = document.getElementById('totalTransactions');
                 
-                // Muestra la sección del dashboard por defecto
-                showSection('dashboard'); 
-            }
-
-            // =========================================
-            // LÓGICA DE DATOS (CRUD)
-            // =========================================
-            loadData() {
-                const storedData = localStorage.getItem('financeProData');
-                return storedData ? JSON.parse(storedData) : {
+                this.accountForm = document.getElementById('accountForm');
+                this.accountNameInput = document.getElementById('accountName');
+                this.accountTypeSelect = document.getElementById('accountType');
+                this.accountBankInput = document.getElementById('accountBank');
+                this.accountBalanceInput = document.getElementById('accountBalance');
+                this.accountNumberInput = document.getElementById('accountNumber');
+                this.creditLimitField = document.getElementById('creditLimitField');
+                this.creditLimitInput = document.getElementById('creditLimit');
+                this.accountsList = document.getElementById('accountsList');
+                this.dashboardAccounts = document.getElementById('dashboardAccounts');
+                this.dashboardTransactions = document.getElementById('dashboardTransactions');
+                this.settingsAccountCount = document.getElementById('settingsAccountCount');
+                this.settingsTransactionCount = document.getElementById('settingsTransactionCount');
+                this.settingsDataSize = document.getElementById('settingsDataSize');
+                this.editAccountsList = document.getElementById('editAccountsList');
+                this.editTransactionsList = document.getElementById('editTransactionsList');
+                this.mainAccountsConfig = document.getElementById('mainAccountsConfig');
+                
+                this.transferForm = document.getElementById('transferForm');
+                this.transferFromAccountSelect = document.getElementById('transferFromAccount');
+                this.transferToAccountSelect = document.getElementById('transferToAccount');
+                this.transferAmountInput = document.getElementById('transferAmount');
+                this.transferDateInput = document.getElementById('transferDate');
+                this.transferDescriptionInput = document.getElementById('transferDescription');
+                this.transferFeeInput = document.getElementById('transferFee');
+                this.transfersList = document.getElementById('transfersList');
+                
+                this.budgetForm = document.getElementById('budgetForm');
+                this.budgetCategorySelect = document.getElementById('budgetCategory');
+                this.budgetAmountInput = document.getElementById('budgetAmount');
+                this.budgetCategoriesList = document.getElementById('budgetCategoriesList');
+                this.budgetMonthInput = document.getElementById('budgetMonth');
+                this.totalBudgetEl = document.getElementById('totalBudget');
+                this.totalSpentEl = document.getElementById('totalSpent');
+                this.totalRemainingEl = document.getElementById('totalRemaining');
+                this.budgetProgressEl = document.getElementById('budgetProgress');
+                
+                this.searchTransactionsInput = document.getElementById('searchTransactions');
+                
+                this.data = {
                     accounts: [],
                     transactions: [],
                     transfers: [],
-                    budgets: {},
+                    budgets: [],
                     investments: []
                 };
-            }
-
-            saveData() {
-                localStorage.setItem('financeProData', JSON.stringify(this.data));
-            }
-            
-            // =========================================
-            // MANEJO DE EVENTOS DE FORMULARIOS
-            // =========================================
-            setupEventListeners() {
-                this.accountForm.addEventListener('submit', (e) => this.addAccount(e));
-                this.transactionForm.addEventListener('submit', (e) => this.addTransaction(e));
-                this.transferForm.addEventListener('submit', (e) => this.addTransfer(e));
-                this.budgetForm.addEventListener('submit', (e) => this.addBudgetCategory(e));
-                this.investmentForm.addEventListener('submit', (e) => this.addInvestment(e));
                 
-                // Evento para mostrar/ocultar el límite de crédito
-                document.getElementById('accountType').addEventListener('change', (e) => {
-                    document.getElementById('creditLimitField').classList.toggle('hidden', e.target.value !== 'credit');
-                });
-
-                // Evento para el autocompletado de la fecha de transacción
-                document.getElementById('transactionDate').value = new Date().toISOString().slice(0, 10);
-                document.getElementById('transferDate').value = new Date().toISOString().slice(0, 10);
+                this.accountTypeSelect.addEventListener('change', this.toggleCreditLimit.bind(this));
+                this.accountForm.addEventListener('submit', this.handleAddAccount.bind(this));
+                this.addTransactionForm.addEventListener('submit', this.handleFormSubmit.bind(this));
+                this.transferForm.addEventListener('submit', this.handleTransferSubmit.bind(this));
+                this.budgetForm.addEventListener('submit', this.handleBudgetSubmit.bind(this));
+                this.searchTransactionsInput.addEventListener('input', this.filterTransactions.bind(this));
                 
-                // Eventos de selección de cuenta para transferencias
-                document.getElementById('transferFromAccount').addEventListener('change', (e) => this.updateTransferBalance('from'));
-                document.getElementById('transferToAccount').addEventListener('change', (e) => this.updateTransferBalance('to'));
+                this.pieChart = null;
+                this.summaryChart = null;
+                this.initCharts();
             }
 
-            updateTransferBalance(type) {
-                const accountId = document.getElementById(`transfer${type === 'from' ? 'From' : 'To'}Account`).value;
-                const balance = this.data.accounts.find(a => a.id === accountId)?.balance || 0;
-                document.getElementById(`${type}AccountBalance`).textContent = `Saldo: $${balance.toFixed(2)}`;
+            async handleFormSubmit(e) {
+                e.preventDefault();
+                const type = this.typeSelect.value;
+                const category = this.categorySelect.value;
+                const amount = parseFloat(this.amountInput.value);
+                const description = this.descriptionInput.value;
+                const date = this.dateInput.value;
+                const account = this.accountSelect.value;
+                const accountObj = this.data.accounts.find(acc => acc.id === account);
+
+                if (!type || !category || isNaN(amount) || amount <= 0 || !description || !date || !account) {
+                    alert('Por favor, completa todos los campos.');
+                    return;
+                }
+                
+                if (type === 'expense' && accountObj.balance < amount && accountObj.type !== 'credit') {
+                    alert('Saldo insuficiente en la cuenta. Agrega fondos o elige otra cuenta.');
+                    return;
+                }
+                
+                const newTransaction = {
+                    account,
+                    type,
+                    category,
+                    amount,
+                    description,
+                    date,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                try {
+                    const docRef = await db.collection("transactions").add(newTransaction);
+                    newTransaction.id = docRef.id;
+                    newTransaction.timestamp = new Date();
+                    
+                    if (type === 'income') {
+                        accountObj.balance += amount;
+                    } else if (type === 'expense') {
+                        accountObj.balance -= amount;
+                    }
+                    
+                    await db.collection("accounts").doc(accountObj.id).update({
+                        balance: accountObj.balance
+                    });
+                    
+                    this.data.transactions.push(newTransaction);
+                    this.data.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    this.renderAll();
+                    this.addTransactionForm.reset();
+                } catch (error) {
+                    console.error("Error al guardar la transacción: ", error);
+                    alert("Hubo un error al guardar la transacción. Inténtalo de nuevo.");
+                }
+            }
+
+            async handleAddAccount(e) {
+                e.preventDefault();
+                const name = this.accountNameInput.value;
+                const type = this.accountTypeSelect.value;
+                const bank = this.accountBankInput.value;
+                let balance = parseFloat(this.accountBalanceInput.value);
+                const number = this.accountNumberInput.value;
+                const creditLimit = parseFloat(this.creditLimitInput.value) || 0;
+                
+                if (!name || !type || !bank || isNaN(balance)) {
+                    alert('Por favor, completa todos los campos obligatorios.');
+                    return;
+                }
+                
+                if (type === 'credit' && creditLimit <= 0) {
+                    alert('El límite de crédito debe ser un valor positivo.');
+                    return;
+                }
+                
+                if (type === 'credit') {
+                    balance = -Math.abs(balance);
+                }
+                
+                const newAccount = {
+                    name,
+                    type,
+                    bank,
+                    balance,
+                    number,
+                    creditLimit,
+                    main: false,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                try {
+                    const docRef = await db.collection("accounts").add(newAccount);
+                    newAccount.id = docRef.id;
+                    this.data.accounts.push(newAccount);
+                    this.renderAll();
+                    this.accountForm.reset();
+                } catch (error) {
+                    console.error("Error al agregar la cuenta: ", error);
+                    alert("Hubo un error al agregar la cuenta. Inténtalo de nuevo.");
+                }
+            }
+
+            async handleTransferSubmit(e) {
+                e.preventDefault();
+                const fromAccount = this.transferFromAccountSelect.value;
+                const toAccount = this.transferToAccountSelect.value;
+                const amount = parseFloat(this.transferAmountInput.value);
+                const date = this.transferDateInput.value;
+                const description = this.transferDescriptionInput.value;
+                const fee = parseFloat(this.transferFeeInput.value) || 0;
+                
+                if (!fromAccount || !toAccount || isNaN(amount) || amount <= 0 || !date || !description || fromAccount === toAccount) {
+                    alert('Por favor, revisa todos los campos. Asegúrate de que las cuentas de origen y destino sean diferentes.');
+                    return;
+                }
+                
+                const fromAccountObj = this.data.accounts.find(acc => acc.id === fromAccount);
+                const toAccountObj = this.data.accounts.find(acc => acc.id === toAccount);
+                
+                if (fromAccountObj.balance < amount + fee) {
+                    alert('Saldo insuficiente en la cuenta de origen para realizar la transferencia.');
+                    return;
+                }
+                
+                const newFromBalance = fromAccountObj.balance - (amount + fee);
+                const newToBalance = toAccountObj.balance + amount;
+                
+                const newTransfer = {
+                    fromAccount,
+                    toAccount,
+                    amount,
+                    fee,
+                    date,
+                    description,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                try {
+                    await db.collection("transfers").add(newTransfer);
+                    await db.collection("accounts").doc(fromAccountObj.id).update({ balance: newFromBalance });
+                    await db.collection("accounts").doc(toAccountObj.id).update({ balance: newToBalance });
+
+                    fromAccountObj.balance = newFromBalance;
+                    toAccountObj.balance = newToBalance;
+                    this.data.transfers.push(newTransfer);
+                    this.renderAll();
+                    this.transferForm.reset();
+                } catch (error) {
+                    console.error("Error al realizar la transferencia: ", error);
+                    alert("Hubo un error al realizar la transferencia. Inténtalo de nuevo.");
+                }
             }
 
             // =========================================
-            // LÓGICA DE RENDERIZADO
+            // MÉTODOS DE RENDERIZADO (sin cambios en su mayoría)
             // =========================================
+
             renderAll() {
-                this.renderDashboard();
-                this.renderAccounts();
-                this.renderTransactionFormAccounts();
-                this.renderTransactions();
-                this.renderTransferFormsAccounts();
-                this.renderBudgetCategories();
-                this.renderInvestments();
-                this.renderSettings();
-            }
-
-            renderDashboard() {
-                const totalNetWorth = this.data.accounts.reduce((sum, account) => sum + account.balance, 0);
-                const totalInvestments = this.data.investments.reduce((sum, inv) => sum + inv.currentValue, 0);
-                document.getElementById('totalNetWorth').textContent = `$${totalNetWorth.toFixed(2)}`;
-                document.getElementById('totalAccounts').textContent = this.data.accounts.length;
-                document.getElementById('totalInvestments').textContent = `$${totalInvestments.toFixed(2)}`;
-                document.getElementById('totalTransactions').textContent = this.data.transactions.length;
-                
+                this.renderDashboardSummary();
                 this.renderDashboardAccounts();
                 this.renderDashboardTransactions();
-                this.renderFinanceChart();
+                this.renderAccountsList();
+                this.renderTransactionsTable();
+                this.renderTransferHistory();
+                this.renderBudgetList();
+                this.updateAccountOptions();
+                this.updateCategoryOptions();
+                this.updateTransferOptions();
+                this.updateSettings();
+            }
+
+            // Renderizar la sección de dashboard
+            renderDashboardSummary() {
+                const totalBalance = this.data.accounts.reduce((sum, acc) => sum + (acc.balance || 0), 0);
+                const totalIncome = this.data.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                const totalExpenses = this.data.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                const totalNetWorth = this.data.accounts.reduce((sum, acc) => {
+                    if (acc.type === 'credit') {
+                        return sum + (acc.balance + acc.creditLimit);
+                    }
+                    return sum + acc.balance;
+                }, 0);
+
+                this.totalBalanceEl.textContent = `${totalBalance.toFixed(2)} USD`;
+                this.totalIncomeEl.textContent = `${totalIncome.toFixed(2)} USD`;
+                this.totalExpensesEl.textContent = `${totalExpenses.toFixed(2)} USD`;
+                this.totalNetWorthEl.textContent = `${totalNetWorth.toFixed(2)} USD`;
+                
+                this.updateCharts();
             }
 
             renderDashboardAccounts() {
-                const list = document.getElementById('dashboardAccounts');
-                const mainAccounts = this.data.accounts.filter(a => a.isMain);
-                if (mainAccounts.length === 0) {
-                    list.innerHTML = `<div class="text-center py-8 text-gray-500"><span class="text-4xl">🏦</span><p class="mt-2">No tienes cuentas configuradas</p><button onclick="showSection('accounts')" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">Agregar Primera Cuenta</button></div>`;
-                    return;
-                }
-                
-                list.innerHTML = mainAccounts.map(a => `
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-between">
+                const accountsContainer = this.dashboardAccounts;
+                accountsContainer.innerHTML = '';
+                this.data.accounts.slice(0, 3).forEach(account => {
+                    const accountCard = document.createElement('div');
+                    accountCard.className = `account-card p-6 rounded-xl shadow-lg flex justify-between items-center card-hover account-${account.type}`;
+                    accountCard.innerHTML = `
                         <div>
-                            <p class="text-sm text-gray-500">${a.name}</p>
-                            <p class="text-xl font-bold text-gray-900">$${a.balance.toFixed(2)}</p>
+                            <p class="text-sm opacity-80">${account.bank}</p>
+                            <h3 class="text-xl font-bold mt-1">${account.name}</h3>
+                            <p class="text-sm opacity-80 mt-1">Saldo</p>
+                            <p class="text-3xl font-extrabold mt-1">${account.balance.toFixed(2)} USD</p>
                         </div>
-                        <span class="text-3xl">${this.getAccountEmoji(a.type)}</span>
-                    </div>
-                `).join('');
+                        <div>
+                            <svg class="h-10 w-10 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13c-1.162.001-2.594.252-4 .748v13m-4-13a2 2 0 01-2-2h4a2 2 0 01-2 2zM9 20v-3.586a1 1 0 01.293-.707l1.293-1.293m0 0a1 1 0 011.414 0l1.293 1.293a1 1 0 01.293.707V20M9 20h6"/>
+                            </svg>
+                        </div>
+                    `;
+                    accountsContainer.appendChild(accountCard);
+                });
             }
 
             renderDashboardTransactions() {
-                const list = document.getElementById('dashboardTransactions');
-                const recentTransactions = this.data.transactions.slice(0, 5);
-                if (recentTransactions.length === 0) {
-                    list.innerHTML = `<div class="text-center py-8 text-gray-500"><span class="text-4xl">💳</span><p class="mt-2">No hay transacciones registradas</p><button onclick="showSection('transactions')" class="mt-4 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">Registrar Primera Transacción</button></div>`;
-                    return;
-                }
+                const tableContainer = this.dashboardTransactions;
+                const recentTransactions = this.data.transactions.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
                 
-                list.innerHTML = recentTransactions.map(t => {
-                    const accountName = this.data.accounts.find(a => a.id === t.accountId)?.name || 'Cuenta eliminada';
-                    return `
-                        <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-xl ${t.type === 'income' ? 'text-green-500' : 'text-red-500'}">${t.type === 'income' ? '💰' : '💸'}</span>
-                                <div>
-                                    <p class="font-medium text-gray-900">${t.description}</p>
-                                    <p class="text-xs text-gray-500">De ${accountName} | ${t.date}</p>
-                                </div>
-                            </div>
-                            <span class="font-bold text-lg ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">$${t.amount.toFixed(2)}</span>
-                        </div>
-                    `;
-                }).join('');
-            }
-            
-            renderFinanceChart() {
-                const ctx = document.getElementById('financeChart').getContext('2d');
-                // Limpia el canvas para evitar superposición
-                if (this.financeChart) {
-                    this.financeChart.destroy();
-                }
-
-                // Genera datos de ejemplo o usa los de la aplicación
-                const labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'];
-                const incomes = [5000, 5200, 4800, 5500, 5300, 6000];
-                const expenses = [3500, 3800, 3700, 4000, 4100, 3900];
-
-                this.financeChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { label: 'Ingresos', data: incomes, borderColor: '#43e97b', tension: 0.3, fill: false },
-                            { label: 'Gastos', data: expenses, borderColor: '#f20000', tension: 0.3, fill: false }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { position: 'top' } },
-                        scales: { y: { beginAtZero: true } }
-                    }
-                });
+                const tableHTML = `
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${recentTransactions.map(t => `
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">${t.description}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)} USD</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${t.date}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                tableContainer.innerHTML = tableHTML;
             }
 
-            renderAccounts() {
-                const list = document.getElementById('accountsList');
-                if (this.data.accounts.length === 0) {
-                    list.innerHTML = `<div class="text-center py-12 text-gray-500 col-span-full"><span class="text-6xl">🏦</span><p class="text-xl font-medium mb-2 mt-4">No tienes cuentas configuradas</p><p class="text-sm">Agrega tu primera cuenta usando el formulario de arriba</p></div>`;
-                    return;
-                }
+            // Renderizar la sección de cuentas
+            renderAccountsList() {
+                const accountsContainer = this.accountsList;
+                const mainAccountsConfig = this.mainAccountsConfig;
+                const editAccountsList = this.editAccountsList;
 
-                list.innerHTML = this.data.accounts.map(a => `
-                    <div class="p-6 rounded-lg shadow-md ${this.getAccountCardClass(a.type)}">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-3xl">${this.getAccountEmoji(a.type)}</span>
-                            <span class="text-white text-xs font-semibold px-2 py-1 rounded-full border border-white opacity-70">${a.isMain ? 'PRINCIPAL' : a.type.toUpperCase()}</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-white mb-1">${a.name}</h4>
-                        <p class="text-sm text-gray-200">${a.bank}</p>
-                        <p class="text-3xl font-bold text-white mt-4">$${a.balance.toFixed(2)}</p>
-                        <div class="flex justify-end mt-4 space-x-2">
-                            <button onclick="app.editAccount('${a.id}')" class="text-sm text-gray-100 hover:text-white transition-colors">✏️</button>
-                            <button onclick="app.deleteAccount('${a.id}')" class="text-sm text-gray-100 hover:text-white transition-colors">🗑️</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-            
-            getAccountEmoji(type) {
-                switch(type) {
-                    case 'checking': return '💳';
-                    case 'savings': return '💰';
-                    case 'credit': return '💳';
-                    case 'investment': return '📈';
-                    default: return '🏦';
-                }
-            }
+                accountsContainer.innerHTML = '';
+                mainAccountsConfig.innerHTML = '';
+                editAccountsList.innerHTML = '';
 
-            getAccountCardClass(type) {
-                switch(type) {
-                    case 'checking': return 'bg-gradient-to-r from-blue-500 to-blue-600';
-                    case 'savings': return 'bg-gradient-to-r from-green-500 to-green-600';
-                    case 'credit': return 'bg-gradient-to-r from-red-500 to-red-600';
-                    case 'investment': return 'bg-gradient-to-r from-purple-500 to-purple-600';
-                    default: return 'bg-gray-800';
-                }
-            }
-
-            renderTransactionFormAccounts() {
-                const select = document.getElementById('transactionAccount');
-                select.innerHTML = '<option value="">Seleccionar cuenta</option>';
                 this.data.accounts.forEach(account => {
-                    const option = document.createElement('option');
-                    option.value = account.id;
-                    option.textContent = `${account.name} (${account.bank})`;
-                    select.appendChild(option);
-                });
-                
-                const categorySelect = document.getElementById('transactionCategory');
-                this.renderCategories(categorySelect);
-            }
-            
-            renderTransactions() {
-                const list = document.getElementById('transactionsList');
-                if (this.data.transactions.length === 0) {
-                     list.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500"><span class="text-4xl">💳</span><p class="mt-2">No hay transacciones registradas</p></td></tr>`;
-                    return;
-                }
-
-                list.innerHTML = this.data.transactions.map(t => {
-                    const accountName = this.data.accounts.find(a => a.id === t.accountId)?.name || 'Cuenta eliminada';
-                    return `
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${t.date}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${accountName}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.description}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${t.category}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? 'Ingreso' : 'Gasto'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">$${t.amount.toFixed(2)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onclick="app.editTransaction('${t.id}')" class="text-indigo-600 hover:text-indigo-900">Editar</button>
-                                <button onclick="app.deleteTransaction('${t.id}')" class="ml-4 text-red-600 hover:text-red-900">Eliminar</button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            renderTransferFormsAccounts() {
-                const fromSelect = document.getElementById('transferFromAccount');
-                const toSelect = document.getElementById('transferToAccount');
-                fromSelect.innerHTML = '<option value="">Seleccionar cuenta origen</option>';
-                toSelect.innerHTML = '<option value="">Seleccionar cuenta destino</option>';
-                this.data.accounts.forEach(account => {
-                    fromSelect.innerHTML += `<option value="${account.id}">${account.name} (${account.bank})</option>`;
-                    toSelect.innerHTML += `<option value="${account.id}">${account.name} (${account.bank})</option>`;
-                });
-            }
-
-            renderBudgetCategories() {
-                const list = document.getElementById('budgetCategoriesList');
-                const budgetMonth = document.getElementById('budgetMonth').value || new Date().toISOString().slice(0, 7);
-                const monthBudgets = this.data.budgets[budgetMonth] || {};
-                
-                // Actualizar resumen del presupuesto
-                const totalBudget = Object.values(monthBudgets).reduce((sum, b) => sum + b.amount, 0);
-                const totalSpent = this.data.transactions
-                    .filter(t => t.date.startsWith(budgetMonth) && t.type === 'expense')
-                    .reduce((sum, t) => sum + t.amount, 0);
-                const totalRemaining = totalBudget - totalSpent;
-                const progress = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
-                
-                document.getElementById('totalBudget').textContent = `$${totalBudget.toFixed(2)}`;
-                document.getElementById('totalSpent').textContent = `$${totalSpent.toFixed(2)}`;
-                document.getElementById('totalRemaining').textContent = `$${totalRemaining.toFixed(2)}`;
-                document.getElementById('budgetProgress').textContent = `${progress.toFixed(0)}%`;
-                
-                if (Object.keys(monthBudgets).length === 0) {
-                     list.innerHTML = `<div class="text-center py-8 text-gray-500"><span class="text-4xl">💰</span><p class="mt-2">No hay categorías en el presupuesto</p><p class="text-sm">Agrega categorías usando el formulario de arriba</p></div>`;
-                    return;
-                }
-                
-                list.innerHTML = Object.keys(monthBudgets).map(category => {
-                    const budget = monthBudgets[category];
-                    const spent = this.data.transactions
-                        .filter(t => t.date.startsWith(budgetMonth) && t.category === category && t.type === 'expense')
-                        .reduce((sum, t) => sum + t.amount, 0);
-                    const remaining = budget.amount - spent;
-                    const progress = (spent / budget.amount) * 100;
-                    
-                    return `
-                        <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-gray-900">${category}</h4>
-                                <span class="text-sm text-gray-600">$${spent.toFixed(2)} / $${budget.amount.toFixed(2)}</span>
-                            </div>
-                            <div class="w-full bg-gray-300 rounded-full h-2.5">
-                                <div class="h-2.5 rounded-full ${progress > 100 ? 'bg-red-500' : 'bg-green-500'}" style="width: ${Math.min(progress, 100)}%;"></div>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-2">Restante: $${remaining.toFixed(2)}</p>
+                    const card = document.createElement('div');
+                    card.className = `account-card p-6 rounded-xl shadow-lg card-hover flex justify-between items-center account-${account.type}`;
+                    card.innerHTML = `
+                        <div>
+                            <p class="text-sm opacity-80">${account.bank}</p>
+                            <h3 class="text-2xl font-bold mt-1">${account.name}</h3>
+                            <p class="text-sm opacity-80 mt-2">Saldo Actual</p>
+                            <p class="text-4xl font-extrabold mt-1">${account.balance.toFixed(2)} USD</p>
+                            ${account.type === 'credit' ? `<p class="text-sm opacity-80 mt-2">Límite de Crédito: ${account.creditLimit.toFixed(2)} USD</p>` : ''}
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                             <button onclick="financeApp.deleteAccount('${account.id}')" class="text-white p-2 rounded-full hover:bg-gray-700 transition-colors duration-200">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.013 21H7.987a2 2 0 01-1.92-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                             </button>
+                             ${account.main ? '<span class="text-white text-xs bg-purple-500 px-2 py-1 rounded-full">Principal</span>' : ''}
                         </div>
                     `;
-                }).join('');
-            }
-
-            renderInvestments() {
-                const list = document.getElementById('investmentsList');
-                const totalValue = this.data.investments.reduce((sum, inv) => sum + inv.currentValue, 0);
-                const totalGain = this.data.investments.reduce((sum, inv) => sum + (inv.currentValue - inv.purchasePrice), 0);
-                document.getElementById('totalInvestmentsValue').textContent = `$${totalValue.toFixed(2)}`;
-                document.getElementById('totalInvestmentsGain').textContent = `$${totalGain.toFixed(2)}`;
-                document.getElementById('investmentAssetCount').textContent = this.data.investments.length;
-
-                if (this.data.investments.length === 0) {
-                    list.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500"><span class="text-4xl">📈</span><p class="mt-2">No hay inversiones registradas</p></td></tr>`;
-                    return;
-                }
-
-                list.innerHTML = this.data.investments.map(inv => {
-                    const gainLoss = inv.currentValue - inv.purchasePrice;
-                    return `
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${inv.assetName}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${inv.assetType}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${inv.quantity}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$${inv.purchasePrice.toFixed(2)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$${inv.currentValue.toFixed(2)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}">$${gainLoss.toFixed(2)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onclick="app.editInvestment('${inv.id}')" class="text-indigo-600 hover:text-indigo-900">Editar</button>
-                                <button onclick="app.deleteInvestment('${inv.id}')" class="ml-4 text-red-600 hover:text-red-900">Eliminar</button>
-                            </td>
-                        </tr>
+                    accountsContainer.appendChild(card);
+                });
+                
+                // Renderizar lista de cuentas en settings
+                this.data.accounts.forEach(account => {
+                    const accountDiv = document.createElement('div');
+                    accountDiv.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-md';
+                    accountDiv.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <span class="text-gray-800">${account.name}</span>
+                            <span class="text-xs text-gray-500">(${account.bank})</span>
+                        </div>
+                        <button onclick="financeApp.deleteAccount('${account.id}')" class="text-red-500 hover:text-red-700 transition-colors duration-200">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.013 21H7.987a2 2 0 01-1.92-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
                     `;
-                }).join('');
-            }
-            
-            renderSettings() {
-                document.getElementById('settingsAccountCount').textContent = this.data.accounts.length;
-                document.getElementById('settingsTransactionCount').textContent = this.data.transactions.length;
-                document.getElementById('settingsDataSize').textContent = `${(JSON.stringify(this.data).length / 1024).toFixed(2)} KB`;
-            }
-            
-            renderCategories(selectElement) {
-                const defaultCategories = ['Alimentación', 'Transporte', 'Entretenimiento', 'Salud', 'Educación', 'Ropa', 'Hogar', 'Servicios', 'Otros gastos'];
-                selectElement.innerHTML = '<option value="">Seleccionar categoría</option>';
-                defaultCategories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat;
-                    option.textContent = cat;
-                    selectElement.appendChild(option);
+                    editAccountsList.appendChild(accountDiv);
+
+                    // Renderizar opciones de cuenta principal
+                    const mainOption = document.createElement('div');
+                    mainOption.className = 'flex items-center space-x-2';
+                    mainOption.innerHTML = `
+                        <input type="radio" id="main-${account.id}" name="mainAccount" value="${account.id}" ${account.main ? 'checked' : ''} onclick="financeApp.setMainAccount('${account.id}')" class="text-purple-600 focus:ring-purple-500">
+                        <label for="main-${account.id}">${account.name}</label>
+                    `;
+                    mainAccountsConfig.appendChild(mainOption);
                 });
             }
 
-            // =========================================
-            // LÓGICA DE NEGOCIO (ADD, EDIT, DELETE)
-            // =========================================
-            addAccount(e) {
-                e.preventDefault();
-                const newAccount = {
-                    id: crypto.randomUUID(),
-                    name: document.getElementById('accountName').value,
-                    type: document.getElementById('accountType').value,
-                    bank: document.getElementById('accountBank').value,
-                    balance: parseFloat(document.getElementById('accountBalance').value) || 0,
-                    creditLimit: document.getElementById('accountType').value === 'credit' ? parseFloat(document.getElementById('creditLimit').value) || 0 : null,
-                    accountNumber: document.getElementById('accountNumber').value,
-                    isMain: false
-                };
-                this.data.accounts.push(newAccount);
-                this.saveData();
-                this.renderAll();
-                this.accountForm.reset();
-            }
-            
-            deleteAccount(accountId) {
+            // Método para eliminar una cuenta (actualizado)
+            async deleteAccount(accountId) {
                 if (confirm('¿Estás seguro de que quieres eliminar esta cuenta?')) {
-                    this.data.accounts = this.data.accounts.filter(a => a.id !== accountId);
-                    this.saveData();
-                    this.renderAll();
-                }
-            }
-            
-            addTransaction(e) {
-                e.preventDefault();
-                const newTransaction = {
-                    id: crypto.randomUUID(),
-                    accountId: document.getElementById('transactionAccount').value,
-                    type: document.getElementById('transactionType').value,
-                    amount: parseFloat(document.getElementById('transactionAmount').value) || 0,
-                    category: document.getElementById('transactionCategory').value,
-                    date: document.getElementById('transactionDate').value,
-                    description: document.getElementById('transactionDescription').value,
-                };
-                
-                const account = this.data.accounts.find(a => a.id === newTransaction.accountId);
-                if (account) {
-                    if (newTransaction.type === 'income') {
-                        account.balance += newTransaction.amount;
-                    } else {
-                        account.balance -= newTransaction.amount;
+                    const accountIndex = this.data.accounts.findIndex(acc => acc.id === accountId);
+                    if (accountIndex > -1) {
+                        try {
+                            // Eliminar la cuenta de Firebase
+                            await db.collection("accounts").doc(accountId).delete();
+                            
+                            // Eliminar del estado local y renderizar
+                            this.data.accounts.splice(accountIndex, 1);
+                            this.renderAll();
+                        } catch (error) {
+                            console.error("Error al eliminar la cuenta: ", error);
+                            alert("Hubo un error al eliminar la cuenta. Inténtalo de nuevo.");
+                        }
                     }
                 }
-                
-                this.data.transactions.unshift(newTransaction);
-                this.saveData();
-                this.renderAll();
-                this.transactionForm.reset();
+            }
+
+            // Método para establecer la cuenta principal (actualizado)
+            async setMainAccount(accountId) {
+                try {
+                    // Deshabilitar la cuenta principal anterior si existe
+                    const currentMain = this.data.accounts.find(acc => acc.main);
+                    if (currentMain && currentMain.id !== accountId) {
+                        await db.collection("accounts").doc(currentMain.id).update({ main: false });
+                        currentMain.main = false;
+                    }
+
+                    // Establecer la nueva cuenta principal
+                    const newMain = this.data.accounts.find(acc => acc.id === accountId);
+                    if (newMain) {
+                        await db.collection("accounts").doc(newMain.id).update({ main: true });
+                        newMain.main = true;
+                        this.renderAll();
+                    }
+                } catch (error) {
+                    console.error("Error al establecer la cuenta principal: ", error);
+                    alert("Hubo un error al establecer la cuenta principal. Inténtalo de nuevo.");
+                }
             }
             
-            addTransfer(e) {
-                e.preventDefault();
-                const fromAccountId = document.getElementById('transferFromAccount').value;
-                const toAccountId = document.getElementById('transferToAccount').value;
-                const amount = parseFloat(document.getElementById('transferAmount').value) || 0;
-                const fee = parseFloat(document.getElementById('transferFee').value) || 0;
-                
-                const fromAccount = this.data.accounts.find(a => a.id === fromAccountId);
-                const toAccount = this.data.accounts.find(a => a.id === toAccountId);
-                
-                if (fromAccount && toAccount) {
-                    fromAccount.balance -= amount + fee;
-                    toAccount.balance += amount;
-                    this.saveData();
-                    this.renderAll();
-                    this.transferForm.reset();
+            // Renderizar la tabla de transacciones
+            renderTransactionsTable() {
+                const tableContainer = this.transactionsList;
+                const sortedTransactions = this.data.transactions.sort((a,b) => new Date(b.date) - new Date(a.date));
+                const tableHTML = `
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cuenta</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTableBody" class="bg-white divide-y divide-gray-200">
+                            ${sortedTransactions.map(t => {
+                                const accountName = this.data.accounts.find(acc => acc.id === t.account)?.name || 'N/A';
+                                return `
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">${t.description}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)} USD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">${t.date}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">${t.category}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">${accountName}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button onclick="financeApp.deleteTransaction('${t.id}')" class="text-red-500 hover:text-red-700 transition-colors duration-200">
+                                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.013 21H7.987a2 2 0 01-1.92-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+                tableContainer.innerHTML = tableHTML;
+            }
+
+            // Método para eliminar una transacción (actualizado)
+            async deleteTransaction(transactionId) {
+                if (confirm('¿Estás seguro de que quieres eliminar esta transacción?')) {
+                    const transactionIndex = this.data.transactions.findIndex(t => t.id === transactionId);
+                    if (transactionIndex > -1) {
+                        const transaction = this.data.transactions[transactionIndex];
+                        const accountObj = this.data.accounts.find(acc => acc.id === transaction.account);
+                        
+                        try {
+                            // Revertir el balance en la base de datos
+                            if (accountObj) {
+                                if (transaction.type === 'income') {
+                                    accountObj.balance -= transaction.amount;
+                                } else if (transaction.type === 'expense') {
+                                    accountObj.balance += transaction.amount;
+                                }
+                                await db.collection("accounts").doc(accountObj.id).update({
+                                    balance: accountObj.balance
+                                });
+                            }
+                            
+                            // Eliminar la transacción de la base de datos
+                            await db.collection("transactions").doc(transactionId).delete();
+                            
+                            // Eliminar del estado local y renderizar
+                            this.data.transactions.splice(transactionIndex, 1);
+                            this.renderAll();
+                        } catch (error) {
+                            console.error("Error al eliminar la transacción: ", error);
+                            alert("Hubo un error al eliminar la transacción. Inténtalo de nuevo.");
+                        }
+                    }
+                }
+            }
+
+            // Renderizar el historial de transferencias
+            renderTransferHistory() {
+                const listContainer = this.transfersList;
+                const sortedTransfers = this.data.transfers.sort((a,b) => new Date(b.date) - new Date(a.date));
+                const tableHTML = `
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">A</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${sortedTransfers.map(t => {
+                                const fromAccountName = this.data.accounts.find(acc => acc.id === t.fromAccount)?.name || 'N/A';
+                                const toAccountName = this.data.accounts.find(acc => acc.id === t.toAccount)?.name || 'N/A';
+                                return `
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">${t.description}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">${fromAccountName}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">${toAccountName}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap font-bold text-blue-600">${t.amount.toFixed(2)} USD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">${t.date}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+                listContainer.innerHTML = tableHTML;
+            }
+            
+            // ... (resto de los métodos de la clase sin cambios: handleBudgetSubmit, filterTransactions, etc.)
+            // AHORA QUE ELIMINASTE EL CÓDIGO VIEJO, DEBES AGREGAR TODOS LOS OTROS MÉTODOS A ESTA CLASE.
+            // Los métodos que faltan son: 
+            // toggleCreditLimit, renderBudgetList, updateBudgetSummary, initCharts, updateCharts,
+            // updateAccountOptions, updateCategoryOptions, updateTransferOptions, updateSettings,
+            // clearAllData
+            // Por favor, si el código que tienes contiene esos métodos, agrégalos aquí.
+
+            // =========================================
+            // LÓGICA DE TRANSFERENCIAS Y CUENTAS
+            // =========================================
+            // Métodos ya actualizados para Firebase: handleAddAccount, deleteAccount, handleTransferSubmit
+            // Agrega aquí los otros métodos que no cambiaron de tu versión anterior, como:
+            // updateAccountOptions, updateTransferOptions, etc.
+
+            // =========================================
+            // LÓGICA DE PRESUPUESTOS Y OTROS
+            // =========================================
+            // Aquí puedes agregar tus métodos de presupuestos que no cambiaron.
+            
+            // =========================================
+            // Métodos de la versión original (no requieren cambios para Firebase, pero son necesarios para que la app funcione)
+            // =========================================
+            
+            // Método para manejar la visibilidad del campo de límite de crédito
+            toggleCreditLimit() {
+                const creditLimitField = document.getElementById('creditLimitField');
+                if (this.accountTypeSelect.value === 'credit') {
+                    creditLimitField.classList.remove('hidden');
                 } else {
-                    alert('Por favor, selecciona las cuentas de origen y destino.');
+                    creditLimitField.classList.add('hidden');
                 }
             }
-            
-            addBudgetCategory(e) {
+
+            // Método para manejar el envío del formulario de presupuesto
+            handleBudgetSubmit(e) {
                 e.preventDefault();
-                const month = document.getElementById('budgetMonth').value || new Date().toISOString().slice(0, 7);
-                if (!this.data.budgets[month]) {
-                    this.data.budgets[month] = {};
+                const category = this.budgetCategorySelect.value;
+                const amount = parseFloat(this.budgetAmountInput.value);
+                const month = this.budgetMonthInput.value;
+
+                if (!category || isNaN(amount) || amount <= 0 || !month) {
+                    alert('Por favor, completa todos los campos del presupuesto.');
+                    return;
                 }
-                this.data.budgets[month][document.getElementById('budgetCategory').value] = {
-                    amount: parseFloat(document.getElementById('budgetAmount').value) || 0
+
+                const newBudget = {
+                    category,
+                    amount,
+                    month
                 };
-                this.saveData();
-                this.renderBudgetCategories();
+
+                this.data.budgets.push(newBudget);
+                // Aquí, en una versión con Firebase, guardarías esto en la base de datos
+                this.renderAll();
                 this.budgetForm.reset();
             }
 
-            addInvestment(e) {
-                e.preventDefault();
-                const newInvestment = {
-                    id: crypto.randomUUID(),
-                    assetName: document.getElementById('assetName').value,
-                    assetType: document.getElementById('assetType').value,
-                    quantity: parseFloat(document.getElementById('assetQuantity').value) || 0,
-                    purchasePrice: parseFloat(document.getElementById('assetPrice').value) || 0,
-                    date: document.getElementById('assetDate').value,
-                    currentValue: parseFloat(document.getElementById('assetCurrentValue').value) || 0,
-                };
-                this.data.investments.unshift(newInvestment);
-                this.saveData();
-                this.renderInvestments();
-                this.investmentForm.reset();
+            // Renderizar la lista de presupuestos
+            renderBudgetList() {
+                const listContainer = this.budgetCategoriesList;
+                listContainer.innerHTML = '';
+                const expenses = this.data.transactions.filter(t => t.type === 'expense');
+                
+                this.data.budgets.forEach(budget => {
+                    const spent = expenses.filter(e => e.category === budget.category && e.date.startsWith(budget.month)).reduce((sum, e) => sum + e.amount, 0);
+                    const remaining = budget.amount - spent;
+                    const progress = (spent / budget.amount) * 100;
+                    const progressBarColor = progress > 100 ? 'bg-red-500' : 'bg-purple-600';
+                    const progressWidth = Math.min(progress, 100);
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-6 rounded-xl shadow-lg';
+                    card.innerHTML = `
+                        <h4 class="text-xl font-bold text-gray-800">${budget.category}</h4>
+                        <p class="text-sm text-gray-500">Presupuesto para: ${budget.month}</p>
+                        <div class="mt-4">
+                            <p class="text-sm">Gastado: <span class="font-bold">${spent.toFixed(2)} USD</span></p>
+                            <p class="text-sm">Presupuestado: <span class="font-bold">${budget.amount.toFixed(2)} USD</span></p>
+                            <p class="text-sm">Restante: <span class="font-bold ${remaining < 0 ? 'text-red-500' : 'text-green-500'}">${remaining.toFixed(2)} USD</span></p>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-4">
+                            <div class="${progressBarColor} h-2 rounded-full" style="width: ${progressWidth}%;"></div>
+                        </div>
+                    `;
+                    listContainer.appendChild(card);
+                });
             }
 
-            // =========================================
-            // FUNCIONES GLOBALES ADICIONALES
-            // =========================================
-            clearAllData() {
-                if(confirm("¿Estás seguro de que quieres eliminar todos los datos de la aplicación? Esta acción es irreversible.")) {
-                    localStorage.removeItem('financeProData');
-                    this.data = this.loadData();
-                    this.renderAll();
-                    alert("Todos los datos han sido eliminados.");
+            // Actualizar resumen de presupuestos
+            updateBudgetSummary() {
+                const totalBudget = this.data.budgets.reduce((sum, b) => sum + b.amount, 0);
+                const expenses = this.data.transactions.filter(t => t.type === 'expense');
+                const totalSpent = this.data.budgets.reduce((sum, b) => {
+                    const monthExpenses = expenses.filter(e => e.date.startsWith(b.month));
+                    return sum + monthExpenses.reduce((s, e) => s + e.amount, 0);
+                }, 0);
+                const totalRemaining = totalBudget - totalSpent;
+
+                this.totalBudgetEl.textContent = `${totalBudget.toFixed(2)} USD`;
+                this.totalSpentEl.textContent = `${totalSpent.toFixed(2)} USD`;
+                this.totalRemainingEl.textContent = `${totalRemaining.toFixed(2)} USD`;
+                
+                const progress = (totalSpent / totalBudget) * 100;
+                this.budgetProgressEl.style.width = `${Math.min(progress, 100)}%`;
+                if (progress > 100) {
+                    this.budgetProgressEl.classList.add('bg-red-500');
+                    this.budgetProgressEl.classList.remove('bg-purple-600');
+                } else {
+                    this.budgetProgressEl.classList.remove('bg-red-500');
+                    this.budgetProgressEl.classList.add('bg-purple-600');
                 }
             }
+
+            // Inicializar y actualizar gráficos
+            initCharts() {
+                const expensesByCat = expenseCategories.map(cat => {
+                    const expenses = this.data.transactions.filter(t => t.type === 'expense' && t.category === cat);
+                    return expenses.reduce((sum, t) => sum + t.amount, 0);
+                });
+                
+                this.pieChart = new Chart(this.pieChartCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: expenseCategories,
+                        datasets: [{
+                            data: expensesByCat,
+                            backgroundColor: ['#667eea', '#764ba2', '#4facfe', '#00f2fe', '#43e97b', '#38f9d7', '#FF6B6B', '#FFB643', '#85C1E9']
+                        }]
+                    }
+                });
+                
+                // Gráfico de resumen de ingresos vs. gastos
+                const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                const currentMonth = new Date().getMonth();
+                const labels = [];
+                for (let i = 0; i < 6; i++) {
+                    labels.unshift(months[(currentMonth - i + 12) % 12]);
+                }
+                
+                const incomeData = labels.map(month => {
+                    const income = this.data.transactions.filter(t => t.type === 'income' && new Date(t.date).getMonth() === months.indexOf(month));
+                    return income.reduce((sum, t) => sum + t.amount, 0);
+                });
+                
+                const expenseData = labels.map(month => {
+                    const expenses = this.data.transactions.filter(t => t.type === 'expense' && new Date(t.date).getMonth() === months.indexOf(month));
+                    return expenses.reduce((sum, t) => sum + t.amount, 0);
+                });
+
+                this.summaryChart = new Chart(this.summaryChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Ingresos',
+                            data: incomeData,
+                            backgroundColor: '#43e97b'
+                        }, {
+                            label: 'Gastos',
+                            data: expenseData,
+                            backgroundColor: '#FF6B6B'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
             
-            resetToDefaults() {
-                // Implementación de la función de restaurar a valores por defecto
-                // Por ahora, solo es un placeholder
-                alert('Función de restaurar a valores por defecto no implementada.');
+            updateCharts() {
+                if (this.pieChart) {
+                    const expensesByCat = expenseCategories.map(cat => {
+                        const expenses = this.data.transactions.filter(t => t.type === 'expense' && t.category === cat);
+                        return expenses.reduce((sum, t) => sum + t.amount, 0);
+                    });
+                    this.pieChart.data.datasets[0].data = expensesByCat;
+                    this.pieChart.update();
+                }
+
+                if (this.summaryChart) {
+                    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                    const currentMonth = new Date().getMonth();
+                    const labels = [];
+                    for (let i = 0; i < 6; i++) {
+                        labels.unshift(months[(currentMonth - i + 12) % 12]);
+                    }
+                    
+                    const incomeData = labels.map(month => {
+                        const income = this.data.transactions.filter(t => t.type === 'income' && new Date(t.date).getMonth() === months.indexOf(month));
+                        return income.reduce((sum, t) => sum + t.amount, 0);
+                    });
+                    
+                    const expenseData = labels.map(month => {
+                        const expenses = this.data.transactions.filter(t => t.type === 'expense' && new Date(t.date).getMonth() === months.indexOf(month));
+                        return expenses.reduce((sum, t) => sum + t.amount, 0);
+                    });
+                    
+                    this.summaryChart.data.labels = labels;
+                    this.summaryChart.data.datasets[0].data = incomeData;
+                    this.summaryChart.data.datasets[1].data = expenseData;
+                    this.summaryChart.update();
+                }
             }
 
-            optimizeData() {
-                // Implementación de la función de optimizar datos
-                // Por ahora, solo es un placeholder
-                alert('Función de optimizar datos no implementada.');
+            // Actualizar opciones de cuentas y categorías en los formularios
+            updateAccountOptions() {
+                const transactionAccountSelect = this.accountSelect;
+                const transferFromAccountSelect = this.transferFromAccountSelect;
+                const transferToAccountSelect = this.transferToAccountSelect;
+
+                transactionAccountSelect.innerHTML = '<option value="">Selecciona Cuenta</option>';
+                transferFromAccountSelect.innerHTML = '<option value="">De la Cuenta</option>';
+                transferToAccountSelect.innerHTML = '<option value="">A la Cuenta</option>';
+
+                this.data.accounts.forEach(account => {
+                    const option = `<option value="${account.id}">${account.name} (${account.bank}) - $${account.balance.toFixed(2)}</option>`;
+                    transactionAccountSelect.innerHTML += option;
+                    transferFromAccountSelect.innerHTML += option;
+                    transferToAccountSelect.innerHTML += option;
+                });
             }
 
-            exportData(format) {
-                // Implementación de la función de exportar datos
-                // Por ahora, solo es un placeholder
-                alert(`Función de exportar a ${format} no implementada.`);
+            updateCategoryOptions() {
+                const categorySelect = this.categorySelect;
+                categorySelect.innerHTML = '<option value="">Categoría</option>';
+                expenseCategories.forEach(cat => {
+                    const option = `<option value="${cat}">${cat}</option>`;
+                    categorySelect.innerHTML += option;
+                });
             }
 
-            importData(input) {
-                // Implementación de la función de importar datos
-                // Por ahora, solo es un placeholder
-                alert('Función de importar datos no implementada.');
+            updateTransferOptions() {
+                this.updateAccountOptions();
             }
 
-            generateSyncCode() {
-                // Implementación de la función de generar código de sincronización
-                // Por ahora, solo es un placeholder
-                document.getElementById('generatedSyncCode').value = 'ABCD-1234-WXYZ';
-                alert('Código de sincronización generado (placeholder).');
+            updateSettings() {
+                this.settingsAccountCount.textContent = this.data.accounts.length;
+                this.settingsTransactionCount.textContent = this.data.transactions.length;
+                
+                // Calcular el tamaño estimado de los datos
+                const dataSize = (JSON.stringify(this.data).length / 1024).toFixed(2);
+                this.settingsDataSize.textContent = `${dataSize} KB`;
+                
+                this.renderAccountsList();
             }
 
-            useSyncCode() {
-                // Implementación de la función de usar código de sincronización
-                // Por ahora, solo es un placeholder
-                alert('Función de sincronizar no implementada.');
+            filterTransactions() {
+                const searchText = this.searchTransactionsInput.value.toLowerCase();
+                const filtered = this.data.transactions.filter(t => t.description.toLowerCase().includes(searchText));
+                
+                const tableBody = document.getElementById('transactionTableBody');
+                if (tableBody) {
+                    tableBody.innerHTML = filtered.map(t => {
+                        const accountName = this.data.accounts.find(acc => acc.id === t.account)?.name || 'N/A';
+                        return `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">${t.description}</td>
+                                <td class="px-6 py-4 whitespace-nowrap font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)} USD</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${t.date}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${t.category}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${accountName}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button onclick="financeApp.deleteTransaction('${t.id}')" class="text-red-500 hover:text-red-700 transition-colors duration-200">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.013 21H7.987a2 2 0 01-1.92-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            }
+
+            // Lógica de eliminación de datos de la base de datos (actualizado para Firebase)
+            async clearAllData() {
+                if (confirm('¿Estás seguro de que quieres eliminar TODOS los datos? Esta acción es irreversible y los eliminará de Firebase.')) {
+                    try {
+                        // Eliminar todas las colecciones
+                        const collections = ["accounts", "transactions", "transfers", "budgets", "investments"];
+                        for (const col of collections) {
+                            const snapshot = await db.collection(col).get();
+                            const batch = db.batch();
+                            snapshot.docs.forEach(doc => {
+                                batch.delete(doc.ref);
+                            });
+                            await batch.commit();
+                        }
+                        
+                        // Limpiar el estado local y refrescar la UI
+                        this.data = { accounts: [], transactions: [], transfers: [], budgets: [], investments: [] };
+                        this.renderAll();
+                        alert('Todos los datos han sido eliminados.');
+                    } catch (error) {
+                        console.error("Error al eliminar los datos: ", error);
+                        alert("Hubo un error al eliminar los datos de Firebase. Inténtalo de nuevo.");
+                    }
+                }
             }
         }
         
         // =========================================
-        // FUNCIONES GLOBALES (ACCESO DIRECTO DESDE HTML)
+        // INICIALIZACIÓN DE LA APLICACIÓN
         // =========================================
+        let financeApp;
         
-        // Muestra la sección del ID especificado y oculta las demás
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            document.getElementById(sectionId).classList.remove('hidden');
+        async function initApp() {
+            financeApp = new FinanceApp();
+            try {
+                // Cargar cuentas
+                const accountsSnapshot = await db.collection("accounts").get();
+                accountsSnapshot.forEach(doc => {
+                    financeApp.data.accounts.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Cargar transacciones
+                const transactionsSnapshot = await db.collection("transactions").get();
+                transactionsSnapshot.forEach(doc => {
+                    const transaction = doc.data();
+                    transaction.id = doc.id;
+                    transaction.timestamp = transaction.timestamp ? transaction.timestamp.toDate() : new Date();
+                    financeApp.data.transactions.push(transaction);
+                });
+                
+                financeApp.data.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                // Cargar transferencias
+                const transfersSnapshot = await db.collection("transfers").get();
+                transfersSnapshot.forEach(doc => {
+                    const transfer = doc.data();
+                    transfer.id = doc.id;
+                    transfer.timestamp = transfer.timestamp ? transfer.timestamp.toDate() : new Date();
+                    financeApp.data.transfers.push(transfer);
+                });
+                
+                financeApp.data.transfers.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                // Cargar presupuestos
+                const budgetsSnapshot = await db.collection("budgets").get();
+                budgetsSnapshot.forEach(doc => {
+                    const budget = doc.data();
+                    budget.id = doc.id;
+                    financeApp.data.budgets.push(budget);
+                });
+
+                // Cargar inversiones
+                const investmentsSnapshot = await db.collection("investments").get();
+                investmentsSnapshot.forEach(doc => {
+                    const investment = doc.data();
+                    investment.id = doc.id;
+                    financeApp.data.investments.push(investment);
+                });
+
+                financeApp.renderAll();
+                console.log("Datos cargados desde Firebase.");
+
+            } catch (error) {
+                console.error("Error al cargar los datos de Firebase: ", error);
+                alert("Hubo un error al cargar los datos. Revisa la consola.");
+            }
         }
         
-        // Alterna la visibilidad del menú móvil
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            mobileMenu.classList.toggle('hidden');
-        }
-        
-        // Limpia los campos de los formularios
-        function clearAccountForm() { document.getElementById('accountForm').reset(); }
-        function clearTransactionForm() { document.getElementById('transactionForm').reset(); }
-        function clearTransferForm() { document.getElementById('transferForm').reset(); }
-        function clearInvestmentForm() { document.getElementById('investmentForm').reset(); }
-        
-        // Inicializar la aplicación
-        let app;
-        document.addEventListener('DOMContentLoaded', () => {
-            app = new FinanceApp();
-        });
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
-        console.log('ServiceWorker registrado con éxito: ', registration.scope);
-      }, function(err) {
-        console.log('Error al registrar el ServiceWorker: ', err);
-      });
-    });
-  }
-</script>
 </body>
 </html>
