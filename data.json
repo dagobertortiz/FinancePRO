@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1672531200000,
+    "description": "Salario de Diciembre",
+    "amount": 2500.00,
+    "type": "income",
+    "category": "salary",
+    "date": "01/01/2023"
+  },
+  {
+    "id": 1672617600000,
+    "description": "Compra de supermercado",
+    "amount": 75.50,
+    "type": "expense",
+    "category": "food",
+    "date": "02/01/2023"
+  },
+  {
+    "id": 1672704000000,
+    "description": "Recarga de transporte",
+    "amount": 25.00,
+    "type": "expense",
+    "category": "transport",
+    "date": "03/01/2023"
+  },
+  {
+    "id": 1672790400000,
+    "description": "Entradas de cine",
+    "amount": 30.00,
+    "type": "expense",
+    "category": "entertainment",
+    "date": "04/01/2023"
+  },
+  {
+    "id": 1672876800000,
+    "description": "Factura de electricidad",
+    "amount": 65.00,
+    "type": "expense",
+    "category": "bills",
+    "date": "05/01/2023"
+  }
+]
