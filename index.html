@@ -269,13 +269,42 @@
             </div>
         </section>
 
-        <!-- Sección Informes (contenido de ejemplo) -->
+        <!-- Sección Informes (contenido actualizado) -->
         <section id="reports" class="section hidden">
             <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-6">Informes y Análisis</h1>
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <p class="text-gray-700 dark:text-gray-300">
-                    Aquí se mostrarán informes y análisis detallados de tus finanzas. Esta sección aún está en desarrollo.
-                </p>
+            <div class="space-y-8">
+                <!-- Ingresos vs. Gastos -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Resumen de Ingresos y Gastos</h2>
+                    <div id="incomeVsExpensesReport" class="flex flex-col md:flex-row items-end h-64 md:h-80 relative gap-4 p-4">
+                        <div class="flex flex-col items-center flex-1 h-full">
+                            <div id="incomeBar" class="w-24 md:w-32 bg-green-500 rounded-xl transition-all duration-500 ease-in-out" style="height: 0;"></div>
+                            <span id="incomeLabel" class="text-green-500 font-bold mt-2">$0.00</span>
+                            <span class="text-sm text-gray-500">Ingresos</span>
+                        </div>
+                        <div class="flex flex-col items-center flex-1 h-full">
+                            <div id="expensesBar" class="w-24 md:w-32 bg-red-500 rounded-xl transition-all duration-500 ease-in-out" style="height: 0;"></div>
+                            <span id="expensesLabel" class="text-red-500 font-bold mt-2">$0.00</span>
+                            <span class="text-sm text-gray-500">Gastos</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gastos por Categoría -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Gastos por Categoría</h2>
+                    <div id="category-list" class="space-y-4">
+                        <p class="text-center text-gray-500">No hay gastos para mostrar en esta categoría.</p>
+                    </div>
+                </div>
+                
+                <!-- Gastos por Beneficiario -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Gastos por Beneficiario</h2>
+                    <div id="beneficiary-list-report" class="space-y-4">
+                        <p class="text-center text-gray-500">No hay gastos para mostrar por beneficiario.</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -319,6 +348,12 @@
                     categoriesList: document.getElementById('categoriesList'),
                     beneficiaryForm: document.getElementById('beneficiaryForm'),
                     beneficiariesList: document.getElementById('beneficiariesList'),
+                    incomeBar: document.getElementById('incomeBar'),
+                    expensesBar: document.getElementById('expensesBar'),
+                    incomeLabel: document.getElementById('incomeLabel'),
+                    expensesLabel: document.getElementById('expensesLabel'),
+                    categoryListReport: document.getElementById('category-list'),
+                    beneficiaryListReport: document.getElementById('beneficiary-list-report')
                 };
                 this.initEventListeners();
                 this.loadData();
@@ -598,6 +633,105 @@
                 this.domElements.monthlySavings.textContent = `$${savings.toFixed(2)}`;
             }
 
+            generateReports() {
+                const incomes = this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                const expenses = this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+                this.renderIncomeVsExpensesChart(incomes, expenses);
+                this.renderCategoryBreakdown();
+                this.renderBeneficiaryBreakdown();
+            }
+
+            renderIncomeVsExpensesChart(incomes, expenses) {
+                const maxAmount = Math.max(incomes, expenses, 1);
+                const incomeHeight = (incomes / maxAmount) * 100;
+                const expensesHeight = (expenses / maxAmount) * 100;
+
+                this.domElements.incomeBar.style.height = `${incomeHeight}%`;
+                this.domElements.expensesBar.style.height = `${expensesHeight}%`;
+                this.domElements.incomeLabel.textContent = `$${incomes.toFixed(2)}`;
+                this.domElements.expensesLabel.textContent = `$${expenses.toFixed(2)}`;
+            }
+
+            renderCategoryBreakdown() {
+                const expensesByCategory = this.transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((acc, t) => {
+                        acc[t.category] = (acc[t.category] || 0) + t.amount;
+                        return acc;
+                    }, {});
+
+                const totalExpenses = this.transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const list = this.domElements.categoryListReport;
+                list.innerHTML = '';
+
+                if (Object.keys(expensesByCategory).length === 0) {
+                    list.innerHTML = '<p class="text-center text-gray-500">No hay gastos para mostrar en esta categoría.</p>';
+                    return;
+                }
+
+                for (const category in expensesByCategory) {
+                    const amount = expensesByCategory[category];
+                    const percentage = totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0;
+
+                    const item = document.createElement('div');
+                    item.className = 'flex flex-col space-y-2';
+                    item.innerHTML = `
+                        <div class="flex justify-between items-center text-sm font-medium">
+                            <span class="capitalize">${category}</span>
+                            <span>$${amount.toFixed(2)} (${percentage.toFixed(0)}%)</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${percentage}%;"></div>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                }
+            }
+
+            renderBeneficiaryBreakdown() {
+                const expensesByBeneficiary = this.transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((acc, t) => {
+                        const beneficiaryName = t.beneficiary || 'Desconocido';
+                        acc[beneficiaryName] = (acc[beneficiaryName] || 0) + t.amount;
+                        return acc;
+                    }, {});
+
+                const totalExpenses = this.transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+
+                const list = this.domElements.beneficiaryListReport;
+                list.innerHTML = '';
+                
+                if (Object.keys(expensesByBeneficiary).length === 0) {
+                    list.innerHTML = '<p class="text-center text-gray-500">No hay gastos para mostrar por beneficiario.</p>';
+                    return;
+                }
+
+                for (const beneficiary in expensesByBeneficiary) {
+                    const amount = expensesByBeneficiary[beneficiary];
+                    const percentage = totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0;
+
+                    const item = document.createElement('div');
+                    item.className = 'flex flex-col space-y-2';
+                    item.innerHTML = `
+                        <div class="flex justify-between items-center text-sm font-medium">
+                            <span>${beneficiary}</span>
+                            <span>$${amount.toFixed(2)} (${percentage.toFixed(0)}%)</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${percentage}%;"></div>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                }
+            }
+
             saveData() {
                 localStorage.setItem('financeAppData', JSON.stringify({
                     transactions: this.transactions,
@@ -695,6 +829,10 @@
             });
             document.getElementById(sectionId).classList.remove('hidden');
             document.getElementById(sectionId).classList.add('fade-in');
+
+            if (sectionId === 'reports') {
+                window.app.generateReports();
+            }
         }
 
         function hideMessageModal() {
