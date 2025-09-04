@@ -1,71 +1,66 @@
-// Nombre del caché
+// Nombre de la caché
 const CACHE_NAME = 'financepro-cache-v1';
 
-// Archivos que se precachean
+// Archivos a cachear
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css', // Si tuvieras un archivo de estilos separado
-  '/app.js' // Si tuvieras tu lógica de JS en un archivo separado
+    '/FinancePRO/',
+    '/FinancePRO/index.html',
+    '/FinancePRO/manifest.json',
+    '/FinancePRO/icons/icon-192x192.png',
+    '/FinancePRO/icons/icon-512x512.png'
 ];
 
-// Instalar el Service Worker y almacenar los activos en caché
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Cache abierto');
-        return cache.addAll(urlsToCache);
-      })
-  );
+// Evento de instalación: cachea los archivos estáticos
+self.addEventListener('install', (event) => {
+    // waitUntil asegura que el Service Worker no se instale hasta que el trabajo dentro de él haya terminado.
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then((cache) => {
+                console.log('Cache abierta');
+                // Añade todos los archivos a la caché.
+                return cache.addAll(urlsToCache);
+            })
+            .catch((error) => {
+                // Si la instalación falla, es probable que la ruta de alguno de los archivos esté mal.
+                console.error('Fallo al añadir archivos a la caché:', error);
+            })
+    );
 });
 
-// Activar el Service Worker
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    // Eliminar cachés antiguos
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Eliminando caché antiguo', cacheName);
-            return caches.delete(cacheName);
-          }
+// Evento de fetch: intercepta las peticiones y sirve archivos desde la caché
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        caches.match(event.request)
+            .then((response) => {
+                // Devuelve el archivo desde la caché si se encuentra
+                if (response) {
+                    return response;
+                }
+                // Si no se encuentra en la caché, realiza la petición de red
+                return fetch(event.request);
+            })
+            .catch(() => {
+                // Maneja los errores de conexión, por ejemplo, sirviendo una página offline
+                // Aquí podrías servir una página predefinida para cuando no hay conexión.
+                // Por simplicidad, no se incluye una página offline.
+                console.error('Error de red al intentar servir el archivo.');
+            })
+    );
+});
+
+// Evento de activación: limpia las cachés antiguas
+self.addEventListener('activate', (event) => {
+    const cacheWhitelist = [CACHE_NAME];
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        // Borra las cachés que no están en la lista blanca.
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
         })
-      );
-    })
-  );
-});
-
-// Interceptar las peticiones de red y servir desde el caché si están disponibles
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Devolver la respuesta desde el caché si se encuentra
-        if (response) {
-          return response;
-        }
-
-        // Si no está en el caché, realizar la petición a la red
-        return fetch(event.request).then(
-          response => {
-            // Comprobar si recibimos una respuesta válida
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clonar la respuesta. Una respuesta es un stream y solo se puede consumir una vez
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
-      })
-  );
+    );
 });

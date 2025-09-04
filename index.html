@@ -4,13 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinancePro - Sistema de Finanzas Personales</title>
-    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
     <style>
         .fade-in {
             animation: fadeIn 0.3s ease-in;
@@ -97,6 +91,9 @@
             <nav class="hidden md:flex space-x-6 items-center">
                 <button onclick="showSection('dashboard')" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition-colors font-medium">Dashboard</button>
                 <button onclick="showSection('transactions')" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition-colors font-medium">Transacciones</button>
+                <button onclick="showSection('accounts')" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition-colors font-medium">Cuentas</button>
+                <button onclick="showSection('categories')" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition-colors font-medium">Categorías</button>
+                <button onclick="showSection('beneficiaries')" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition-colors font-medium">Beneficiarios</button>
                 <button onclick="showSection('budgets')" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition-colors font-medium">Presupuestos</button>
                 <button onclick="showSection('reports')" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition-colors font-medium">Informes</button>
                 <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
@@ -116,6 +113,9 @@
             <ul class="flex flex-col p-4 space-y-2">
                 <li><button onclick="showSection('dashboard'); toggleMobileMenu();" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Dashboard</button></li>
                 <li><button onclick="showSection('transactions'); toggleMobileMenu();" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Transacciones</button></li>
+                <li><button onclick="showSection('accounts'); toggleMobileMenu();" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Cuentas</button></li>
+                <li><button onclick="showSection('categories'); toggleMobileMenu();" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Categorías</button></li>
+                <li><button onclick="showSection('beneficiaries'); toggleMobileMenu();" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Beneficiarios</button></li>
                 <li><button onclick="showSection('budgets'); toggleMobileMenu();" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Presupuestos</button></li>
                 <li><button onclick="showSection('reports'); toggleMobileMenu();" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Informes</button></li>
                 <li><button id="themeToggleMobile" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Alternar Modo Oscuro</button></li>
@@ -181,12 +181,14 @@
                         </select>
                         <select id="category" required class="flex-grow p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                             <option value="">Selecciona la categoría</option>
-                            <option value="salary">Salario</option>
-                            <option value="food">Comida</option>
-                            <option value="transport">Transporte</option>
-                            <option value="entertainment">Entretenimiento</option>
-                            <option value="bills">Facturas</option>
                         </select>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+                        <select id="account" required class="flex-grow p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                            <option value="">Selecciona la cuenta</option>
+                        </select>
+                        <input type="text" id="beneficiary" list="beneficiary-list" placeholder="Beneficiario" class="flex-grow p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                        <datalist id="beneficiary-list"></datalist>
                     </div>
                     <div class="text-right">
                         <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-colors">Añadir Transacción</button>
@@ -197,9 +199,63 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                 <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Lista de Transacciones</h2>
                 <ul id="transactionsList" class="space-y-4">
-                    <!-- Las transacciones completas se renderizarán aquí -->
                     <li class="text-center text-gray-500">No hay transacciones registradas.</li>
                 </ul>
+            </div>
+        </section>
+
+        <!-- Sección Cuentas -->
+        <section id="accounts" class="section hidden">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-6">Gestión de Cuentas</h1>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Añadir Nueva Cuenta</h2>
+                <form id="accountForm" class="space-y-4">
+                    <input type="text" id="accountName" placeholder="Nombre de la cuenta" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    <input type="number" id="accountBalance" placeholder="Saldo inicial" step="0.01" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    <div class="text-right">
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-colors">Añadir Cuenta</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Lista de Cuentas</h2>
+                <ul id="accountsList" class="space-y-4"></ul>
+            </div>
+        </section>
+
+        <!-- Sección Categorías -->
+        <section id="categories" class="section hidden">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-6">Gestión de Categorías</h1>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Añadir Nueva Categoría</h2>
+                <form id="categoryForm" class="space-y-4">
+                    <input type="text" id="categoryName" placeholder="Nombre de la categoría" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    <div class="text-right">
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-colors">Añadir Categoría</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Lista de Categorías</h2>
+                <ul id="categoriesList" class="space-y-4"></ul>
+            </div>
+        </section>
+
+        <!-- Sección Beneficiarios -->
+        <section id="beneficiaries" class="section hidden">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-6">Gestión de Beneficiarios</h1>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Añadir Nuevo Beneficiario</h2>
+                <form id="beneficiaryForm" class="space-y-4">
+                    <input type="text" id="beneficiaryName" placeholder="Nombre del beneficiario" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    <div class="text-right">
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-colors">Añadir Beneficiario</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">Lista de Beneficiarios</h2>
+                <ul id="beneficiariesList" class="space-y-4"></ul>
             </div>
         </section>
 
@@ -237,6 +293,9 @@
         class FinanceApp {
             constructor() {
                 this.transactions = [];
+                this.accounts = [];
+                this.categories = [];
+                this.beneficiaries = [];
                 this.domElements = {
                     totalBalance: document.getElementById('totalBalance'),
                     monthlyIncome: document.getElementById('monthlyIncome'),
@@ -249,8 +308,17 @@
                     amountInput: document.getElementById('amount'),
                     typeInput: document.getElementById('type'),
                     categoryInput: document.getElementById('category'),
+                    accountInput: document.getElementById('account'),
+                    beneficiaryInput: document.getElementById('beneficiary'),
+                    beneficiaryDatalist: document.getElementById('beneficiary-list'),
                     themeToggle: document.getElementById('themeToggle'),
                     themeToggleMobile: document.getElementById('themeToggleMobile'),
+                    accountForm: document.getElementById('accountForm'),
+                    accountsList: document.getElementById('accountsList'),
+                    categoryForm: document.getElementById('categoryForm'),
+                    categoriesList: document.getElementById('categoriesList'),
+                    beneficiaryForm: document.getElementById('beneficiaryForm'),
+                    beneficiariesList: document.getElementById('beneficiariesList'),
                 };
                 this.initEventListeners();
                 this.loadData();
@@ -259,6 +327,9 @@
 
             initEventListeners() {
                 this.domElements.transactionForm.addEventListener('submit', this.handleFormSubmit.bind(this));
+                this.domElements.accountForm.addEventListener('submit', this.handleAccountFormSubmit.bind(this));
+                this.domElements.categoryForm.addEventListener('submit', this.handleCategoryFormSubmit.bind(this));
+                this.domElements.beneficiaryForm.addEventListener('submit', this.handleBeneficiaryFormSubmit.bind(this));
                 this.domElements.themeToggle.addEventListener('click', this.toggleTheme.bind(this));
                 this.domElements.themeToggleMobile.addEventListener('click', this.toggleTheme.bind(this));
             }
@@ -271,6 +342,8 @@
                     amount: parseFloat(this.domElements.amountInput.value),
                     type: this.domElements.typeInput.value,
                     category: this.domElements.categoryInput.value,
+                    account: this.domElements.accountInput.value,
+                    beneficiary: this.domElements.beneficiaryInput.value,
                     date: new Date().toLocaleDateString('es-ES')
                 };
                 if (isNaN(newTransaction.amount)) {
@@ -281,6 +354,41 @@
                 this.domElements.transactionForm.reset();
             }
 
+            handleAccountFormSubmit(event) {
+                event.preventDefault();
+                const newAccount = {
+                    id: Date.now(),
+                    name: document.getElementById('accountName').value,
+                    balance: parseFloat(document.getElementById('accountBalance').value)
+                };
+                if (isNaN(newAccount.balance)) {
+                    this.showMessageModal('Error', 'El saldo debe ser un número válido.');
+                    return;
+                }
+                this.addAccount(newAccount);
+                this.domElements.accountForm.reset();
+            }
+
+            handleCategoryFormSubmit(event) {
+                event.preventDefault();
+                const newCategory = {
+                    id: Date.now(),
+                    name: document.getElementById('categoryName').value,
+                };
+                this.addCategory(newCategory);
+                this.domElements.categoryForm.reset();
+            }
+
+            handleBeneficiaryFormSubmit(event) {
+                event.preventDefault();
+                const newBeneficiary = {
+                    id: Date.now(),
+                    name: document.getElementById('beneficiaryName').value,
+                };
+                this.addBeneficiary(newBeneficiary);
+                this.domElements.beneficiaryForm.reset();
+            }
+
             addTransaction(transaction) {
                 this.transactions.push(transaction);
                 this.saveData();
@@ -289,12 +397,59 @@
                 this.showMessageModal('¡Transacción Añadida!', 'La transacción se ha guardado correctamente.');
             }
 
+            addAccount(account) {
+                this.accounts.push(account);
+                this.saveData();
+                this.renderAccounts();
+                this.showMessageModal('Cuenta Añadida', 'La cuenta ha sido guardada correctamente.');
+            }
+
+            addCategory(category) {
+                this.categories.push(category);
+                this.saveData();
+                this.renderCategories();
+                this.renderTransactionFormCategories();
+                this.showMessageModal('Categoría Añadida', 'La categoría ha sido guardada correctamente.');
+            }
+
+            addBeneficiary(beneficiary) {
+                this.beneficiaries.push(beneficiary);
+                this.saveData();
+                this.renderBeneficiaries();
+                this.renderBeneficiaryDatalist();
+                this.showMessageModal('Beneficiario Añadido', 'El beneficiario ha sido guardado correctamente.');
+            }
+
             deleteTransaction(id) {
                 this.transactions = this.transactions.filter(t => t.id !== id);
                 this.saveData();
                 this.renderTransactions();
                 this.renderSummary();
                 this.showMessageModal('Transacción Eliminada', 'La transacción ha sido eliminada.');
+            }
+
+            deleteAccount(id) {
+                this.accounts = this.accounts.filter(a => a.id !== id);
+                this.saveData();
+                this.renderAccounts();
+                this.renderTransactionFormAccounts();
+                this.showMessageModal('Cuenta Eliminada', 'La cuenta ha sido eliminada.');
+            }
+
+            deleteCategory(id) {
+                this.categories = this.categories.filter(c => c.id !== id);
+                this.saveData();
+                this.renderCategories();
+                this.renderTransactionFormCategories();
+                this.showMessageModal('Categoría Eliminada', 'La categoría ha sido eliminada.');
+            }
+
+            deleteBeneficiary(id) {
+                this.beneficiaries = this.beneficiaries.filter(b => b.id !== id);
+                this.saveData();
+                this.renderBeneficiaries();
+                this.renderBeneficiaryDatalist();
+                this.showMessageModal('Beneficiario Eliminado', 'El beneficiario ha sido eliminado.');
             }
 
             renderTransactions() {
@@ -309,13 +464,11 @@
                     return;
                 }
 
-                // Renderizar transacciones completas
                 this.transactions.sort((a, b) => b.id - a.id).forEach(t => {
                     const listItem = this.createTransactionListItem(t, true);
                     fullList.appendChild(listItem);
                 });
 
-                // Renderizar solo las 5 más recientes para el dashboard
                 this.transactions.sort((a, b) => b.id - a.id).slice(0, 5).forEach(t => {
                     const listItem = this.createTransactionListItem(t, false);
                     recentList.appendChild(listItem);
@@ -344,6 +497,95 @@
                 return listItem;
             }
 
+            renderAccounts() {
+                const list = this.domElements.accountsList;
+                list.innerHTML = '';
+                this.accounts.forEach(a => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-sm';
+                    listItem.innerHTML = `
+                        <div>
+                            <p class="font-medium text-gray-800 dark:text-gray-200">${a.name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Saldo: $${a.balance.toFixed(2)}</p>
+                        </div>
+                        <button onclick="app.deleteAccount(${a.id})" class="text-red-500 hover:text-red-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    `;
+                    list.appendChild(listItem);
+                });
+            }
+
+            renderCategories() {
+                const list = this.domElements.categoriesList;
+                list.innerHTML = '';
+                this.categories.forEach(c => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-sm';
+                    listItem.innerHTML = `
+                        <span class="font-medium text-gray-800 dark:text-gray-200">${c.name}</span>
+                        <button onclick="app.deleteCategory(${c.id})" class="text-red-500 hover:text-red-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    `;
+                    list.appendChild(listItem);
+                });
+            }
+
+            renderBeneficiaries() {
+                const list = this.domElements.beneficiariesList;
+                list.innerHTML = '';
+                this.beneficiaries.forEach(b => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-sm';
+                    listItem.innerHTML = `
+                        <span class="font-medium text-gray-800 dark:text-gray-200">${b.name}</span>
+                        <button onclick="app.deleteBeneficiary(${b.id})" class="text-red-500 hover:text-red-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    `;
+                    list.appendChild(listItem);
+                });
+            }
+
+            renderTransactionFormCategories() {
+                const select = this.domElements.categoryInput;
+                select.innerHTML = '<option value="">Selecciona la categoría</option>';
+                this.categories.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.name;
+                    option.textContent = c.name;
+                    select.appendChild(option);
+                });
+            }
+
+            renderTransactionFormAccounts() {
+                const select = this.domElements.accountInput;
+                select.innerHTML = '<option value="">Selecciona la cuenta</option>';
+                this.accounts.forEach(a => {
+                    const option = document.createElement('option');
+                    option.value = a.name;
+                    option.textContent = a.name;
+                    select.appendChild(option);
+                });
+            }
+            
+            renderBeneficiaryDatalist() {
+                const datalist = this.domElements.beneficiaryDatalist;
+                datalist.innerHTML = '';
+                this.beneficiaries.forEach(b => {
+                    const option = document.createElement('option');
+                    option.value = b.name;
+                    datalist.appendChild(option);
+                });
+            }
+
             renderSummary() {
                 const incomes = this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
                 const expenses = this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
@@ -357,16 +599,34 @@
             }
 
             saveData() {
-                localStorage.setItem('financeAppData', JSON.stringify(this.transactions));
+                localStorage.setItem('financeAppData', JSON.stringify({
+                    transactions: this.transactions,
+                    accounts: this.accounts,
+                    categories: this.categories,
+                    beneficiaries: this.beneficiaries
+                }));
             }
 
             loadData() {
-                const data = localStorage.getItem('financeAppData');
+                const data = JSON.parse(localStorage.getItem('financeAppData'));
                 if (data) {
-                    this.transactions = JSON.parse(data);
+                    this.transactions = data.transactions || [];
+                    this.accounts = data.accounts || [];
+                    this.categories = data.categories || [];
+                    this.beneficiaries = data.beneficiaries || [];
                 }
+                this.renderAll();
+            }
+
+            renderAll() {
                 this.renderTransactions();
                 this.renderSummary();
+                this.renderAccounts();
+                this.renderCategories();
+                this.renderBeneficiaries();
+                this.renderTransactionFormCategories();
+                this.renderTransactionFormAccounts();
+                this.renderBeneficiaryDatalist();
             }
 
             showMessageModal(title, body) {
@@ -396,10 +656,27 @@
                 try {
                     const response = await fetch('data.json');
                     const exampleTransactions = await response.json();
+                    
                     this.transactions = exampleTransactions;
+                    this.accounts = [
+                        { id: 1, name: "Cuenta Principal", balance: 5000 },
+                        { id: 2, name: "Tarjeta de Crédito", balance: -500 }
+                    ];
+                    this.categories = [
+                        { id: 1, name: "Salario" },
+                        { id: 2, name: "Comida" },
+                        { id: 3, name: "Transporte" },
+                        { id: 4, name: "Entretenimiento" },
+                        { id: 5, name: "Facturas" }
+                    ];
+                    this.beneficiaries = [
+                        { id: 1, name: "Netflix" },
+                        { id: 2, name: "Spotify" },
+                        { id: 3, name: "Uber" },
+                    ];
+                    
                     this.saveData();
-                    this.renderTransactions();
-                    this.renderSummary();
+                    this.renderAll();
                     this.showMessageModal('Datos Cargados', 'Se han cargado los datos de ejemplo.');
                 } catch (error) {
                     console.error("Error al cargar datos de ejemplo:", error);
@@ -425,37 +702,21 @@
             document.getElementById('messageModalContent').classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
                 document.getElementById('messageModal').classList.add('hidden');
-            }, 300); // Coincide con la duración de la transición
+            }, 300);
         }
 
         function toggleMobileMenu() {
             document.getElementById('mobileMenu').classList.toggle('hidden');
         }
         
-        // Exponer funciones globales a la ventana
         window.showSection = showSection;
         window.hideMessageModal = hideMessageModal;
         window.toggleMobileMenu = toggleMobileMenu;
 
-        // Inicializar la aplicación al cargar el DOM
         document.addEventListener('DOMContentLoaded', () => {
             window.app = new FinanceApp();
             showSection('dashboard');
-
-            // Registrar el Service Worker
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/service-worker.js')
-                        .then(registration => {
-                            console.log('Service Worker registrado con éxito:', registration);
-                        })
-                        .catch(error => {
-                            console.error('Fallo el registro del Service Worker:', error);
-                        });
-                });
-            }
         });
-
     </script>
 </body>
 </html>
