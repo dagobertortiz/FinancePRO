@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinancePro - Sistema de Finanzas Personales</title>
+    <!-- Los archivos manifest y service worker son esenciales para una PWA.
+         Sin embargo, causan errores en este entorno de desarrollo.
+         Descomenta estas líneas cuando alojes tu aplicación en un servidor real.
     <link rel="manifest" href="manifest.json">
+    -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -442,18 +446,9 @@
             window.app = new FinanceApp();
             showSection('dashboard');
 
-            // Registrar el Service Worker
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/service-worker.js')
-                        .then(registration => {
-                            console.log('Service Worker registrado con éxito:', registration);
-                        })
-                        .catch(error => {
-                            console.error('Fallo el registro del Service Worker:', error);
-                        });
-                });
-            }
+            // La funcionalidad de PWA ha sido eliminada para evitar errores en este entorno.
+            // Para usar Service Workers y Web App Manifest, la aplicación debe estar
+            // alojada en un servidor real.
         });
 
     </script>
